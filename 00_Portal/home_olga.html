@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail OLGA - Sommaire Exécutif</title>
+    <link rel="stylesheet" href="../01_Core/olga_theme.css">
+    <script src="../01_Core/olga_config.js"></script>
+    <script src="../01_Core/olga_auth.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = OLGA_AUTH.requireRole(); // Redirige si pas de session
+            OLGA_AUTH.requireRole('admin', 'rc'); // Seuls admins/responsables voient le portail global
+
+            // Rendre le badge utilisateur
+            OLGA_AUTH.renderUserBadge('user-badge-container');
+        });
+    </script>
+    <style>
+        .hero {
+            text-align: center;
+            padding: 80px 20px;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            border-radius: 20px;
+            margin-bottom: 50px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            letter-spacing: -0.05em;
+            background: -webkit-linear-gradient(#fff, #94a3b8);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: #cbd5e1;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            padding: 20px 0;
+        }
+
+        .app-card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #f1f5f9;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .app-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-color: #3b82f6;
+        }
+
+        .app-card .icon-wrapper {
+            width: 56px;
+            height: 56px;
+            background: #eff6ff;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            color: #3b82f6;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .app-card:hover .icon-wrapper {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .app-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 8px 0;
+        }
+
+        .app-card p {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .badge-priority {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .section-header {
+            margin-top: 60px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-header h2 {
+            font-size: 1.5rem;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .section-header .line {
+            height: 1px;
+            background: #e2e8f0;
+            flex-grow: 1;
+            margin-left: 20px;
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+
+        #user-badge-container {
+            display: flex;
+            align-items: center;
+            background: rgba(30, 41, 59, 0.8);
+            padding: 8px 16px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container" style="max-width: 1100px; margin: 0 auto; padding: 0 20px;">
+
+        <div class="top-nav">
+            <div id="user-badge-container"></div>
+        </div>
+
+        <div class="hero fade-in">
+            <h1>OLGA SYSTEM</h1>
+            <p>Plateforme centralisée de pilotage stratégique & opérationnel pour le lancement OLGA Algérie 2026.</p>
+        </div>
+
+        <!-- SECTION 1: PILOTAGE -->
+        <div class="section-header">
+            <h2>🎯 STRATÉGIE & PILOTAGE</h2>
+            <div class="line"></div>
+        </div>
+
+        <div class="grid-cards fade-in">
+            <!-- Dashboard Global -->
+            <a href="../05_Modules_Strategie/dashboard_olga_global.html" class="app-card">
+                <span class="badge-priority">Priorité 1</span>
+                <div class="icon-wrapper">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <h3>Dashboard Global</h3>
+                <p>Vue d'ensemble des KPIs, parts de marché, couverture catalogue et suivi des 4 univers produits.</p>
+            </a>
+
+            <!-- Plan de Lancement -->
+            <a href="../05_Modules_Strategie/plan_lancement_olga.html" class="app-card">
+                <span class="badge-priority">Stratégique</span>
+                <div class="icon-wrapper">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <h3>Plan de Lancement</h3>
+                <p>Feuille de route opérationnelle, planning des actions marketing et objectifs trimestriels.</p>
+            </a>
+
+            <!-- Veille Concurrentielle -->
+            <a href="../05_Modules_Strategie/veille_concurrentielle_lessive.html" class="app-card">
+                <div class="icon-wrapper">
+                    <i class="fas fa-binoculars"></i>
+                </div>
+                <h3>Veille Concurrentielle</h3>
+                <p>Analyse des prix du marché, positionnement des concurrents et suivi des promotions.</p>
+            </a>
+
+            <!-- Gestion de Projet -->
+            <a href="../03_Modules_Admin/gestion_projet_olga.html" class="app-card">
+                <div class="icon-wrapper">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <h3>Gestion de Projet</h3>
+                <p>Roadmap stratégique, suivi des tâches prioritaires et planning opérationnel.</p>
+            </a>
+        </div>
+
+
+        <!-- SECTION 2: OPÉRATIONS -->
+        <div class="section-header">
+            <h2>📱 OUTILS TERRAIN</h2>
+            <div class="line"></div>
+        </div>
+
+        <div class="grid-cards fade-in">
+            <!-- App Commerciale -->
+            <a href="../04_Modules_Terrain/app_commercial_olga.html" class="app-card">
+                <span class="badge-priority">Ventes</span>
+                <div class="icon-wrapper">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>App Force de Vente</h3>
+                <p>Interface mobile pour la prise de commande, le suivi client et le reporting terrain.</p>
+            </a>
+
+            <!-- Distribution -->
+            <a href="../05_Modules_Strategie/distribution_olga_global.html" class="app-card">
+                <div class="icon-wrapper">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <h3>Distribution & Maillage</h3>
+                <p>Cartographie et suivi de la pénétration distributeurs par zone géographique.</p>
+            </a>
+
+            <!-- Super Back-Office -->
+            <a href="../03_Modules_Admin/backoffice_olga.html" class="app-card"
+                style="border: 2px solid var(--primary);">
+                <span class="badge-priority">Poste de Travail</span>
+                <div class="icon-wrapper" style="background:var(--primary); color:white;">
+                    <i class="fas fa-desktop"></i>
+                </div>
+                <h3>Super Back-Office</h3>
+                <p>Centre de pilotage unifié : Validation terrain, Gestion des BL, Catalogue, Stocks et Équipes.</p>
+            </a>
+        </div>
+
+
+        <!-- SECTION 3: LOGISTIQUE -->
+        <div class="section-header">
+            <h2>🚛 LOGISTIQUE</h2>
+            <div class="line"></div>
+        </div>
+
+        <div class="grid-cards fade-in">
+            <!-- Simulateur Loading -->
+            <a href="../06_Logistique/simulateur_loading_olga.html" class="app-card">
+                <div class="icon-wrapper">
+                    <i class="fas fa-cubes"></i>
+                </div>
+                <h3>Simulateur de Chargement</h3>
+                <p>Optimisation du remplissage des camions et calculs de poids/volume pour les expéditions.</p>
+            </a>
+        </div>
+
+
+        <!-- SECTION 4: DOCUMENTATION -->
+        <div class="section-header">
+            <h2>📚 SUPPORT & RÉFÉRENTIEL</h2>
+            <div class="line"></div>
+        </div>
+
+        <div class="grid-cards fade-in">
+            <!-- Guide Utilisateur -->
+            <a href="../GUIDE_UTILISATEUR_OLGA.md" class="app-card" target="_blank">
+                <span class="badge-priority" style="background:#fef3c7; color:#92400e;">Indispensable</span>
+                <div class="icon-wrapper" style="background:#fff7ed; color:#ea580c;">
+                    <i class="fas fa-book"></i>
+                </div>
+                <h3>Guide Utilisateur V1.0</h3>
+                <p>Manuel complet pour les agents terrain et la direction. Procédures, astuces et règles du système.</p>
+            </a>
+        </div>
+
+
+    </div>
+
+</body>
+
+</html>

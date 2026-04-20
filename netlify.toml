@@ -1,0 +1,66 @@
+# ══════════════════════════════════════════════════════
+# NETLIFY CONFIG — OLGA MKT
+# ══════════════════════════════════════════════════════
+
+[build]
+  publish = "."
+
+# ── Redirections ──────────────────────────────────────
+
+# Racine → Portail
+[[redirects]]
+  from = "/"
+  to   = "/00_Portal/home_olga.html"
+  status = 200
+
+# Raccourci app terrain
+[[redirects]]
+  from = "/terrain"
+  to   = "/04_Modules_Terrain/app_commercial_olga.html"
+  status = 302
+
+# Raccourci back-office
+[[redirects]]
+  from = "/admin"
+  to   = "/03_Modules_Admin/backoffice_olga.html"
+  status = 302
+
+# Raccourci login
+[[redirects]]
+  from = "/login"
+  to   = "/04_Modules_Terrain/login_olga.html"
+  status = 302
+
+# ── Headers de sécurité et cache ─────────────────────
+
+# Pages HTML : pas de cache (toujours à jour)
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control       = "no-cache, must-revalidate"
+    X-Frame-Options     = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+
+[[headers]]
+  for = "/**/*.html"
+  [headers.values]
+    Cache-Control       = "no-cache, must-revalidate"
+    X-Frame-Options     = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+
+# JS Core : cache 24h (versioning via ?v= dans les src)
+[[headers]]
+  for = "/01_Core/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/02_Database/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+# CSS : cache 24h
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"

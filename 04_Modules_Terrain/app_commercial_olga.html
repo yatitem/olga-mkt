@@ -1,0 +1,3624 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>📱 Commercial – OLGA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="../01_Core/olga_config.js"></script>
+    <script src="../01_Core/olga_auth.js"></script>
+    <script src="../02_Database/olga_users_db.js"></script>
+    <script src="../02_Database/olga_geo_db.js"></script>
+    <script src="../01_Core/olga_storage_supabase.js?v=20260325v6"></script>
+    <script>
+        // Purge du LocalStorage (migration vers Supabase Only)
+        Object.keys(localStorage).filter(k => k.startsWith('olga_')).forEach(k => localStorage.removeItem(k));
+    </script>
+    <style>
+        :root {
+            --bg: #060e20;
+            --surface: #0f1930;
+            --surface-low: #091328;
+            --surface-high: #141f38;
+            --surface-highest: #192540;
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.4);
+            --accent: #85adff;
+            --text: #dee5ff;
+            --text-muted: #a3aac4;
+            --white: #ffffff;
+            --glass: rgba(25, 37, 64, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+            --red: #ff716c;
+            --green: #6e9fff;
+            --purple: #fbabff;
+            --nav-h: 76px;
+            --top-h: 70px;
+            --radius: 24px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Manrope', sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        /* ── GLASS & GRADIENTS ── */
+        .glass {
+            background: var(--glass);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* ── TOP BAR ── */
+        .topbar {
+            background: rgba(6, 14, 32, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            height: var(--top-h);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .topbar-logo {
+            font-weight: 800;
+            font-size: 1.4em;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topbar-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-pill {
+            background: var(--surface-low);
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 0.75em;
+            font-weight: 600;
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-logout {
+            width: 40px;
+            height: 40px;
+            background: var(--surface-high);
+            color: var(--text-muted);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:active {
+            transform: scale(0.9);
+            color: var(--red);
+            border-color: var(--red);
+        }
+
+        /* ── LAYOUT ── */
+        .scroll-area {
+            position: fixed;
+            top: var(--top-h);
+            bottom: var(--nav-h);
+            left: 0;
+            right: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .page {
+            display: none;
+            padding: 30px 20px;
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ── BOTTOM NAV ── */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: var(--nav-h);
+            background: rgba(15, 25, 48, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 1000;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .nav-item {
+            flex: 1;
+            background: none;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-muted);
+            font-size: 0.65em;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .nav-item i {
+            font-size: 1.6em;
+            transition: transform 0.3s;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item.active i {
+            transform: translateY(-4px);
+            text-shadow: 0 0 12px var(--primary-glow);
+        }
+
+        .nav-center .nav-fab {
+            width: 58px;
+            height: 58px;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 1.6em;
+            box-shadow: 0 8px 24px var(--primary-glow);
+            margin-top: -34px;
+            border: 4px solid var(--bg);
+            transition: all 0.3s;
+        }
+
+        /* ── HOME COMPONENTS ── */
+        .greeting {
+            margin-bottom: 32px;
+        }
+
+        .greeting h2 {
+            font-size: 2em;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .greeting p {
+            font-size: 0.9em;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-box {
+            background: var(--surface);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 20px 10px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-box .num {
+            font-size: 1.4em;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 2px;
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .stat-box .lbl {
+            font-size: 0.6em;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        /* ── ITEM LISTS ── */
+        .item-card {
+            background: var(--surface);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .item-card.glass {
+            background: rgba(25, 37, 64, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .item-card:active {
+            transform: scale(0.98);
+        }
+
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: var(--surface-high);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.1em;
+            color: var(--accent);
+        }
+
+        .btn {
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 0.8em;
+            font-weight: 700;
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            border: none;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.9em;
+        }
+
+        .search-box input {
+            width: 100%;
+            background: var(--surface-low);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 14px 14px 14px 44px;
+            color: var(--text);
+            font-size: 0.85em;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        /* ── STEP WIZARD ── */
+        .step-info {
+            background: linear-gradient(135deg, var(--surface-low), var(--surface-high));
+            padding: 16px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            margin-bottom: 20px;
+        }
+        
+        /* ── NEW ORDER GRID (BACKOFFICE STYLE) ── */
+        .order-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+        
+        @media (min-width: 900px) {
+            .order-grid {
+                grid-template-columns: 1fr 340px;
+            }
+        }
+
+        .bo-product-card {
+            background: var(--surface);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.2s;
+        }
+
+        .prod-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--surface-high);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.4em;
+            flex-shrink: 0;
+        }
+
+        .prod-detail {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .prod-detail h4 {
+            font-size: 0.9em;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .prod-detail .stock {
+            font-size: 0.7em;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .prod-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .unit-btn {
+            background: var(--surface-low);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 8px 12px;
+            text-align: center;
+            min-width: 80px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .unit-btn:hover {
+            border-color: var(--primary);
+            background: var(--surface-high);
+        }
+
+        .unit-btn .label {
+            font-size: 0.6em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .unit-btn .price {
+            font-size: 0.85em;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        /* ── BASKET ── */
+        .basket-card {
+            background: var(--surface);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 0;
+            overflow: hidden;
+            position: sticky;
+            top: 20px;
+        }
+
+        .basket-header {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .basket-items {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .basket-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.02);
+        }
+
+        .basket-item:last-child { border-bottom: none; }
+
+        .basket-item-info { flex: 1; min-width: 0; }
+        .basket-item-name { font-size: 0.8em; font-weight: 700; }
+        .basket-item-sub { font-size: 0.7em; color: var(--text-muted); }
+
+        .basket-qty-ctrl {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--surface-low);
+            padding: 4px 8px;
+            border-radius: 10px;
+        }
+
+        /* ── FAST ORDER UX ── */
+        .fast-order-layout {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 80px); /* Adjust for bottom nav */
+            overflow: hidden;
+            gap: 12px;
+            padding: 0 16px;
+        }
+
+        .search-area {
+            position: relative;
+            flex-shrink: 0;
+            background: var(--surface);
+            padding: 8px 0;
+            z-index: 200;
+        }
+
+        .search-results-container {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 60vh;
+            overflow-y: auto;
+            background: var(--surface-highest);
+            border-radius: 0 0 24px 24px;
+            border: 2px solid var(--primary);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            margin-top: -2px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .search-results-container.active { display: block; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; overflow-y: auto; }
+
+        .search-item {
+            display: grid;
+            grid-template-columns: 48px 1fr auto;
+            grid-template-areas: "aside main ctrl";
+            align-items: center;
+            padding: 14px 16px;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            transition: all 0.3s ease;
+            position: relative;
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .search-item.selected {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.08), rgba(0,0,0,0));
+            box-shadow: inset 3px 0 0 var(--primary);
+        }
+
+        .search-item-aside {
+            grid-area: aside;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mode-toggle { 
+            display: flex; 
+            flex-direction: column;
+            background: rgba(255,255,255,0.05); 
+            border-radius: 8px; 
+            padding: 2px; 
+            border: 1px solid rgba(255,255,255,0.08); 
+            gap: 2px;
+            width: 44px;
+        }
+
+        .mode-btn { 
+            padding: 5px 0; 
+            border-radius: 6px; 
+            font-size: 10px; 
+            font-weight: 900; 
+            border: none; 
+            background: transparent; 
+            color: rgba(255,255,255,0.3); 
+            cursor: pointer; 
+            text-align: center;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .mode-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 6px rgba(var(--primary-rgb), 0.3);
+        }
+
+        .search-item-info { 
+            grid-area: main;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .search-item-name { 
+            font-size: 0.95em; 
+            font-weight: 800; 
+            color: white; 
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .search-item-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75em;
+            color: var(--text-muted);
+        }
+
+        .stock-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255,255,255,0.03);
+            padding: 2px 8px;
+            border-radius: 100px;
+            font-size: 10px;
+            font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.05);
+            color: var(--text-muted);
+            margin-top: 4px;
+            width: fit-content;
+        }
+
+        .stock-badge.low { color: var(--red); border-color: rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); }
+
+        .inline-qty-ctrl {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--surface-highest);
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            opacity: 0.3;
+            pointer-events: none;
+            transition: all 0.3s;
+        }
+
+        .search-item.selected .inline-qty-ctrl {
+            opacity: 1;
+            pointer-events: auto;
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .qty-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: var(--surface-low);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+
+        .qty-btn:active { transform: scale(0.9); background: var(--primary); }
+
+        .qty-input {
+            width: 35px;
+            text-align: center;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.1em;
+            font-weight: 900;
+            outline: none;
+        }
+
+        .line-total {
+            min-width: 90px;
+            text-align: right;
+            font-weight: 900;
+            font-size: 0.95em;
+            color: var(--primary);
+            opacity: 0;
+            transition: all 0.3s;
+            transform: translateX(10px);
+        }
+
+        .search-item.selected .line-total {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .selection-footer {
+            position: sticky;
+            bottom: 0;
+            background: var(--surface-highest);
+            padding: 12px 16px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: none; /* Hide old footer */
+        }
+
+        .btn-selection {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+
+        .btn-add-fast {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.65em;
+            font-weight: 800;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn-add-unit { background: var(--surface-low); color: var(--text); border: 1px solid var(--glass-border); }
+        .btn-add-pack { background: var(--primary); color: white; }
+        .btn-add-fast:active { transform: scale(0.95); }
+
+        .persistent-basket-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 24px 24px 0 0;
+            border: 1px solid var(--glass-border);
+            border-bottom: none;
+            padding: 20px 0 0 0;
+            min-height: 0;
+        }
+
+        .basket-header-fast {
+            padding: 0 20px 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .basket-scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+        .basket-footer-fast {
+            padding: 20px;
+            background: var(--surface-high);
+            border-top: 1px solid var(--glass-border);
+        }
+
+        /* Hide old scroll area scrollbar if needed */
+        #page-order { padding: 0; }
+
+        /* ── MODALS (Bottom sheets) ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-sheet {
+            background: var(--surface);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 28px;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            max-height: 85vh;
+            animation: sheetUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes sheetUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+        }
+
+        /* ── VISIT RAPPORT KPIs ── */
+        .kpi-visit-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 10px 14px;
+            background: var(--surface-high);
+            border-radius: 14px;
+            margin-bottom: 8px;
+        }
+        .kpi-visit-label {
+            font-size: 0.82em;
+            font-weight: 600;
+            color: var(--text);
+            flex: 1;
+        }
+        .kpi-toggle-group {
+            display: flex;
+            gap: 6px;
+        }
+        .kpi-toggle {
+            padding: 6px 14px;
+            background: var(--surface-low);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            color: var(--text-muted);
+            font-size: 0.8em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .kpi-toggle.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(59,130,246,0.4);
+        }
+
+        /* ── FORMS ── */
+        .field {
+            margin-bottom: 20px;
+        }
+
+        .label {
+            font-size: 0.75em;
+            font-weight: 800;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .input,
+        .select,
+        .textarea {
+            width: 100%;
+            background: var(--surface-low);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            padding: 14px 16px;
+            color: var(--text);
+            font-size: 0.95em;
+            outline: none;
+            transition: all 0.2s;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        .textarea {
+            resize: none;
+            line-height: 1.5;
+            min-height: 80px;
+        }
+
+        .select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 18px;
+            padding-right: 44px;
+            cursor: pointer;
+        }
+
+        .select option {
+            background-color: var(--surface-highest);
+            color: var(--text);
+            padding: 12px;
+        }
+
+        /* ── TOAST ── */
+        .toast {
+            position: fixed;
+            top: 24px;
+            right: -400px;
+            background: rgba(16, 185, 129, 0.95);
+            color: white;
+            padding: 16px 28px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 0.9em;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            z-index: 10000;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toast.show {
+            right: 24px;
+        }
+
+        .toast i {
+            font-size: 1.2em;
+        }
+
+        /* ── SYNC BADGE ── */
+        .sync-badge {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--green);
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 0.7em;
+            font-weight: 800;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .sync-badge.pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--orange);
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        .sync-badge i {
+            font-size: 1em;
+        }
+
+        @keyframes pulse-sync {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .sync-badge.syncing {
+            animation: pulse-sync 1.5s infinite;
+        }
+
+        .greeting h2 {
+            font-size: 1.1em;
+            font-weight: 800;
+            margin-bottom: 4px
+        }
+
+        .greeting p {
+            font-size: .8em;
+            color: var(--muted)
+        }
+
+        /* ── PROSPECT CARD ── */
+        .prospect-card {
+            background: var(--surface);
+            border: 1px solid rgba(245, 158, 11, .2);
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+
+        .prospect-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--orange);
+            flex-shrink: 0
+        }
+
+        .prospect-info {
+            flex: 1;
+            min-width: 0
+        }
+
+        .prospect-name {
+            font-size: .9em;
+            font-weight: 600
+        }
+
+        .prospect-sub {
+            font-size: .75em;
+            color: var(--muted);
+            margin-top: 2px
+        }
+
+        .prospect-notes {
+            font-size: .73em;
+            color: var(--orange);
+            margin-top: 4px;
+            font-style: italic
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.65em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .pot-A {
+            background: rgba(244, 63, 94, 0.1);
+            color: var(--danger);
+        }
+
+        .pot-B {
+            background: rgba(14, 165, 233, 0.1);
+            color: var(--accent);
+        }
+
+        .pot-C {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        /* Sync Indicator */
+        .olga-sync-indicator {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.65em;
+            font-weight: 700;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .olga-sync-indicator i {
+            font-size: 0.9em;
+        }
+
+        .syncing i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ── ALERTS & KPI ── */
+        .alert-item {
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.2);
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: pulse-border 2s infinite;
+        }
+
+        @keyframes pulse-border {
+            0% { border-color: rgba(244, 63, 94, 0.2); }
+            50% { border-color: rgba(244, 63, 94, 0.5); }
+            100% { border-color: rgba(244, 63, 94, 0.2); }
+        }
+
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: var(--surface);
+            padding: 16px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .kpi-val {
+            font-size: 1.2em;
+            font-weight: 800;
+            display: block;
+        }
+
+        .kpi-label {
+            font-size: 0.65em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--purple));
+            width: 0%;
+            transition: width 1s ease-out;
+        }
+
+        .bl-tag {
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 0.7em;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .bl-soumis { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+        .bl-valide { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .bl-livre { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .bl-refuse { background: rgba(244, 63, 94, 0.1); color: #f43f5e; }
+
+        /* ── BOTTOM NAVIGATION ── */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 75px;
+            background: rgba(13, 17, 23, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: env(safe-area-inset-bottom);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            padding: 8px 0;
+        }
+
+        .nav-item i {
+            font-size: 1.3em;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item span {
+            font-size: 0.6em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item.active i {
+            transform: translateY(-2px);
+            filter: drop-shadow(0 0 8px var(--primary-glow));
+        }
+
+        .nav-center {
+            position: relative;
+            top: -20px;
+            flex: 0 0 65px;
+        }
+
+        .nav-fab {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(2, 132, 199, 0.4);
+            color: white;
+            font-size: 1.4em;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-item:active .nav-fab {
+            transform: scale(0.9) rotate(5deg);
+        }
+
+        /* Script Placeholder */
+        /* [[SCRIPT_CONTENT]] */
+    </style>
+</head>
+
+<body>
+
+    <div id="errorBanner" style="display:none; background:var(--danger); color:white; padding:10px; font-size:12px; position:fixed; top:0; left:0; right:0; z-index:9999; text-align:center;">
+        ⚠️ <span id="errorMsg"></span>
+        <button onclick="this.parentElement.style.display='none'" style="background:none; border:none; color:white; float:right;">✕</button>
+    </div>
+
+    <div class="topbar">
+        <div class="topbar-logo"><i class="fas fa-droplet" style="color:var(--primary)"></i> OLGA</div>
+        
+        <div class="glass" style="padding:6px 12px; border-radius:12px; display:flex; align-items:center; gap:8px; border:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.03);">
+            <i class="fas fa-calendar-alt" style="color:var(--primary); font-size:0.8em;"></i>
+            <input type="month" id="dashboardMonth" onchange="_syncFromStorage()" style="background:none; border:none; color:white; font-family:inherit; font-size:0.85em; font-weight:800; outline:none; cursor:pointer; width:110px;">
+        </div>
+
+        <div class="topbar-user">
+            <div class="olga-sync-indicator" onclick="forceSync()" style="cursor:pointer; display: flex !important;"><i
+                    class="fas fa-sync-alt"></i> SYNC</div>
+            <div class="user-pill" onclick="showDebugInfo()" style="cursor:help;">Bonjour, <strong id="userName">…</strong></div>
+            <button class="btn-logout" onclick="OLGA_AUTH.logout()"><i class="fas fa-power-off"></i></button>
+        </div>
+    </div>
+
+    <!-- Modals Layer -->
+    <div class="modal-overlay" id="modalAddClient">
+        <div class="modal-sheet">
+            <div class="modal-header">
+                <h3 class="sec-title">Nouveau Dossier Client</h3>
+                <button class="btn-logout" style="background:none; border:none; font-size:1.2em;"
+                    onclick="closeAddClientModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label class="label">Nom Commercial / Enseigne</label>
+                    <input type="text" id="newCNom" class="input" placeholder="ex: Superette Al Baraka">
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                    <div class="field">
+                        <label class="label">Type</label>
+                        <select id="newCType" class="select">
+                            <option value="prospect">🎯 Prospect</option>
+                            <option value="client">🟢 Client</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label class="label">Catégorie</label>
+                        <select id="newCCat" class="select">
+                            <option value="SupB">Standard (B)</option>
+                            <option value="SupA">Premium (A)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                    <div class="field">
+                        <label class="label">Wilaya</label>
+                        <select id="newCWilaya" class="select" onchange="updateNewCommuneList()">
+                            <option value="">— Choisir —</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label class="label">Commune</label>
+                        <select id="newCCommune" class="select">
+                            <option value="">— Choisir —</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                    <div class="field">
+                        <label class="label">Mobile</label>
+                        <input type="tel" id="newCMobile" class="input" placeholder="05/06/07...">
+                    </div>
+                    <div class="field">
+                        <label class="label">Potentiel</label>
+                        <select id="newCPot" class="select">
+                            <option value="C">Standard (C)</option>
+                            <option value="B">Bon (B)</option>
+                            <option value="A">Elite (A)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Nom de l'acheteur</label>
+                    <input type="text" id="newCAcheteur" class="input" placeholder="Nom complet">
+                </div>
+                <div class="field">
+                    <label class="label">Promesse CA Mensuel (DA)</label>
+                    <input type="number" id="newCPromesse" class="input" placeholder="ex: 150000">
+                </div>
+                <div class="field">
+                    <label class="label">Notes / Observations</label>
+                    <textarea id="newCNotes" class="textarea" rows="3" placeholder="Informations complémentaires..."></textarea>
+                </div>
+                <div class="field">
+                    <label class="label">Photo du Point de Vente</label>
+                    <div id="photoPlaceholder" onclick="simulatePhotoCapture()"
+                        style="width:100%; height:120px; border:2px dashed var(--border); border-radius:18px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; background:rgba(255,255,255,0.02)">
+                        <i class="fas fa-camera" style="font-size:1.8em; color:var(--muted)"></i>
+                        <span style="font-size:0.75em; color:var(--muted); margin-top:10px;" id="photoStatus">Tap pour
+                            capturer façades</span>
+                    </div>
+                    <input type="hidden" id="newCPhoto" value="">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" style="width:100%" onclick="saveNewClientFromApp()">🚀 Soumettre
+                    Dossier</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalVeillePrice">
+        <div class="modal-sheet">
+            <div class="modal-header">
+                <h3 class="sec-title">🔍 Veille Prix</h3>
+                <button class="btn-logout" style="background:none; border:none;"
+                    onclick="closeModal('modalVeillePrice')">✕</button>
+            </div>
+            <div class="modal-body">
+                <p id="veilleClientLabel" style="font-size:0.85em; color:var(--muted); margin-bottom:20px;"></p>
+                <div class="field">
+                    <label class="label">Marque / Produit</label>
+                    <input type="text" id="vBrand" class="input" placeholder="ex: Life, Amir...">
+                </div>
+                <div class="field">
+                    <label class="label">Prix Relevé (DA)</label>
+                    <input type="number" id="vPrice" class="input" placeholder="650">
+                </div>
+                <input type="hidden" id="vClientId"><input type="hidden" id="vClientNom">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" style="width:100%" onclick="saveVeilleReport()">Enregistrer le
+                    relevé</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalSignature">
+        <div class="modal-sheet glass" style="max-height:85vh; border-radius: 24px 24px 0 0;">
+            <div class="modal-header">
+                <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                    <h3 class="sec-title" style="margin:0;">✍️ Signature Client</h3>
+                    <button class="btn btn-close" onclick="closeModal('modalSignature')"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div class="modal-body" style="padding:24px;">
+                <div style="background:var(--surface-high); border-radius:16px; padding:12px; margin-bottom:20px; border:1px solid var(--glass-border);">
+                    <div id="sigClientLabel" style="font-weight:800; font-size:1.1em; color:var(--primary);">Nom Client</div>
+                    <div id="sigOrderLabel" style="font-size:0.85em; color:var(--text-muted); margin-top:4px;">Bon de Livraison : —</div>
+                </div>
+
+                <div style="position:relative; background:white; border-radius:18px; overflow:hidden; border:1px solid var(--glass-border);">
+                    <canvas id="signaturePad" style="display:block; width:100%; height:200px; cursor:crosshair;"></canvas>
+                    <button type="button" style="position:absolute; top:8px; right:8px; font-size:0.65em; background:rgba(0,0,0,0.05); color:#999; border:none; padding:6px 10px; border-radius:6px;" onclick="clearSignature()">Effacer</button>
+                </div>
+            </div>
+            <div class="modal-footer" style="padding-top:0;">
+                <button class="btn btn-success" style="width:100%; padding:16px; font-weight:800;" onclick="confirmDeliveryWithSignature()">Confirmer la Livraison ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL RAPPORT DE VISITE -->
+    <div class="modal-overlay" id="modalVisiteRapport">
+        <div class="modal-sheet" style="max-height:92vh; overflow-y:auto;">
+            <div class="modal-header">
+                <h3 class="sec-title">📍 Rapport de Visite</h3>
+                <button class="btn-logout" style="background:none;border:none;" onclick="document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('open'))">✕</button>
+            </div>
+            <div class="modal-body" style="padding-bottom:8px;">
+
+                <!-- Client + Date/Heure auto -->
+                <div style="background:var(--surface-high); border-radius:16px; padding:14px; margin-bottom:16px;">
+                    <div style="font-weight:700; font-size:1em; color:var(--primary);" id="vr-client-nom">—</div>
+                    <div style="display:flex; gap:12px; margin-top:8px;">
+                        <div style="flex:1; background:var(--surface-low); border-radius:10px; padding:10px; text-align:center;">
+                            <div style="font-size:0.65em; color:var(--text-muted); text-transform:uppercase;">Date</div>
+                            <div style="font-weight:700; font-size:0.9em;" id="vr-date">—</div>
+                        </div>
+                        <div style="flex:1; background:var(--surface-low); border-radius:10px; padding:10px; text-align:center;">
+                            <div style="font-size:0.65em; color:var(--text-muted); text-transform:uppercase;">Heure</div>
+                            <div style="font-weight:700; font-size:0.9em;" id="vr-heure">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI 1 : Présence acheteur -->
+                <div class="kpi-visit-row">
+                    <span class="kpi-visit-label">👤 Acheteur présent ?</span>
+                    <div class="kpi-toggle-group">
+                        <button class="kpi-toggle active" data-field="acheteur_present" data-val="oui" onclick="setKPI(this)">Oui</button>
+                        <button class="kpi-toggle" data-field="acheteur_present" data-val="non" onclick="setKPI(this)">Non</button>
+                    </div>
+                </div>
+
+                <!-- KPI 2 : Commande passée -->
+                <div class="kpi-visit-row">
+                    <span class="kpi-visit-label">🛒 Commande passée ?</span>
+                    <div class="kpi-toggle-group">
+                        <button class="kpi-toggle active" data-field="commande_prise" data-val="oui" onclick="setKPI(this)">Oui</button>
+                        <button class="kpi-toggle" data-field="commande_prise" data-val="non" onclick="setKPI(this)">Non</button>
+                    </div>
+                </div>
+
+                <!-- KPI 3 : Qualité mise en avant -->
+                <div class="kpi-visit-row">
+                    <span class="kpi-visit-label">🏪 Mise en avant produits</span>
+                    <div class="kpi-toggle-group">
+                        <button class="kpi-toggle active" data-field="mise_en_avant" data-val="bonne" onclick="setKPI(this)">Bonne</button>
+                        <button class="kpi-toggle" data-field="mise_en_avant" data-val="moyenne" onclick="setKPI(this)">Moyenne</button>
+                        <button class="kpi-toggle" data-field="mise_en_avant" data-val="absente" onclick="setKPI(this)">Absente</button>
+                    </div>
+                </div>
+
+                <!-- KPI 4 : Rupture de stock -->
+                <div class="kpi-visit-row">
+                    <span class="kpi-visit-label">⚠️ Rupture stock signalée ?</span>
+                    <div class="kpi-toggle-group">
+                        <button class="kpi-toggle" data-field="rupture_stock" data-val="oui" onclick="setKPI(this)">Oui</button>
+                        <button class="kpi-toggle active" data-field="rupture_stock" data-val="non" onclick="setKPI(this)">Non</button>
+                    </div>
+                </div>
+
+                <!-- KPI 5 : Activité concurrents -->
+                <div class="kpi-visit-row">
+                    <span class="kpi-visit-label">🔴 Concurrent actif sur site ?</span>
+                    <div class="kpi-toggle-group">
+                        <button class="kpi-toggle" data-field="concurrent_actif" data-val="oui" onclick="setKPI(this)">Oui</button>
+                        <button class="kpi-toggle active" data-field="concurrent_actif" data-val="non" onclick="setKPI(this)">Non</button>
+                    </div>
+                </div>
+
+                <!-- KPI 6 : Humeur client -->
+                <div class="kpi-visit-row">
+                    <span class="kpi-visit-label">😊 Satisfaction client</span>
+                    <div class="kpi-toggle-group">
+                        <button class="kpi-toggle active" data-field="satisfaction" data-val="satisfait" onclick="setKPI(this)">😊</button>
+                        <button class="kpi-toggle" data-field="satisfaction" data-val="neutre" onclick="setKPI(this)">😐</button>
+                        <button class="kpi-toggle" data-field="satisfaction" data-val="insatisfait" onclick="setKPI(this)">😞</button>
+                    </div>
+                </div>
+
+                <!-- Promesse de commande (si non) -->
+                <div style="margin:12px 0; background:var(--surface-high); border-radius:14px; padding:12px;">
+                    <label style="font-size:0.75em; color:var(--text-muted); display:block; margin-bottom:6px;">💬 Notes & Observations</label>
+                    <textarea id="vr-note" rows="3" placeholder="Ex: client intéressé par la promo, demande un délai de paiement..." style="width:100%; background:var(--surface-low); border:1px solid var(--glass-border); border-radius:10px; padding:10px; color:var(--text); font-size:0.85em; resize:none;"></textarea>
+                </div>
+
+                <!-- Montant promesse si pas de commande -->
+                <div style="margin-bottom:16px; background:var(--surface-high); border-radius:14px; padding:12px;">
+                    <label style="font-size:0.75em; color:var(--text-muted); display:block; margin-bottom:6px;">🤝 Promesse CA (si pas de commande aujourd'hui, DA)</label>
+                    <input type="number" id="vr-promesse" placeholder="0" min="0" style="width:100%; background:var(--surface-low); border:1px solid var(--glass-border); border-radius:10px; padding:10px; color:var(--text); font-size:0.9em;">
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-surface" onclick="document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('open'))">Annuler</button>
+                <button class="btn btn-primary" style="flex:1;" onclick="submitVisitRapport()">📍 Confirmer la Visite</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ENCAISSEMENT -->
+    <div class="modal-overlay" id="modalPayment">
+        <div class="modal-sheet">
+            <div class="modal-header">
+                <h3 class="sec-title">💰 Encaisser Paiement</h3>
+                <button class="btn-logout" style="background:none; border:none;" onclick="closeModal('modalPayment')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="background:var(--surface-high); border-radius:16px; padding:12px; margin-bottom:16px; border:1px solid var(--glass-border);">
+                    <div style="font-weight:800; font-size:1.1em; color:var(--primary);" id="pay-client-nom">—</div>
+                    <div style="font-size:0.85em; color:var(--red); margin-top:4px; font-weight:600;" id="pay-client-debt">Créance : — DA</div>
+                </div>
+                
+                <div class="field">
+                    <label class="label">Montant Encaissé (DA)</label>
+                    <input type="number" id="pay-amount" class="input" placeholder="0" style="font-size:1.6em; font-weight:900; color:var(--green); text-align:center;">
+                </div>
+                
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                    <div class="field">
+                        <label class="label">Mode</label>
+                        <select id="pay-mode" class="select" style="padding:12px;">
+                            <option value="Espèce">💵 Espèce</option>
+                            <option value="Chèque">📋 Chèque</option>
+                            <option value="Virement">🏦 Virement</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label class="label">Date</label>
+                        <input type="text" id="pay-date-display" class="input" disabled style="opacity:0.6; padding:12px;">
+                    </div>
+                </div>
+                
+                <div class="field">
+                    <label class="label">Note / Réf Chèque</label>
+                    <input type="text" id="pay-note" class="input" placeholder="facultatif">
+                </div>
+
+                <div class="field" style="margin-top:20px;">
+                    <label class="label" style="font-size:0.7em; color:var(--text-muted);">SIGNATURE DU CLIENT</label>
+                    <div style="position:relative; margin-top:8px; background:white; border-radius:12px; overflow:hidden; border:1px solid var(--glass-border);">
+                        <canvas id="paySignaturePad" style="width:100%; height:150px; cursor:crosshair;"></canvas>
+                        <button type="button" style="position:absolute; top:8px; right:8px; font-size:0.6em; background:rgba(0,0,0,0.05); color:#999; border:none; padding:4px 8px; border-radius:4px;" onclick="clearPaySignature()">Effacer</button>
+                    </div>
+                </div>
+
+                <input type="hidden" id="pay-client-id">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-surface" style="flex:1" onclick="closeModal('modalPayment')">Annuler</button>
+                <button class="btn btn-primary" style="flex:2" onclick="submitPayment()">🚀 Valider l'Encaissement</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- STICKY BAR BASKET (MOBILE) -->
+    <div id="stickyBasketBar" class="sticky-basket-bar" onclick="openModal('modalBasket')">
+        <div class="sbb-info">
+            <i class="fas fa-shopping-basket"></i>
+            <span id="sbb-count">0 articles</span>
+        </div>
+        <div class="sbb-total" id="sbb-total">0 DA</div>
+        <i class="fas fa-chevron-right" style="font-size:0.75em; opacity:0.6;"></i>
+    </div>
+
+    <!-- MODAL PANIER DÉTAILLÉ -->
+    <div class="modal-overlay" id="modalBasket">
+        <div class="modal-sheet">
+            <div class="modal-header">
+                <h3 class="sec-title"><i class="fas fa-shopping-basket"></i> Mon Panier</h3>
+                <button class="btn-logout" style="background:none; border:none;" onclick="closeModal('modalBasket')">✕</button>
+            </div>
+            <div class="modal-body" style="padding:0;">
+                <div id="modalBasketList" class="basket-items" style="max-height:60vh; padding-bottom:20px;">
+                    <!-- JS inject -->
+                </div>
+            </div>
+            <div class="basket-footer">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <span style="font-weight:700; font-size:0.8em; color:var(--text-muted); text-transform:uppercase;">Total de la commande</span>
+                    <span id="modalBasketTotal" style="font-size:1.4em; font-weight:900; color:var(--primary);">0 DA</span>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                    <button class="btn btn-surface" onclick="closeModal('modalBasket')" style="padding:14px; font-weight:700;">
+                        <i class="fas fa-plus"></i> Compléter
+                    </button>
+                    <button class="btn btn-primary" onclick="submitOrder()" id="btnSubmitModal" style="padding:14px; font-weight:700;">
+                        Valider ✅
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="scroll-area" id="scrollArea">
+
+        <!-- HOME (COCKPIT) -->
+        <div class="page active" id="page-home">
+            <div class="greeting">
+                <p id="todayDate" style="color:var(--text-muted); font-size:0.85em; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">...</p>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h2 id="greetMsg" onclick="showDebugInfo()" style="cursor:pointer; margin:0;">Bonjour, <span class="gradient-text" id="userNameLarge">...</span></h2>
+                    <div id="syncStatusBadge" class="sync-badge">
+                        <i class="fas fa-check-circle"></i> Données à jour
+                    </div>
+                </div>
+            </div>
+
+            <!-- ALERTES DYNAMIQUES (TOP PRIORITY) -->
+            <div id="alertsContainer"></div>
+
+            <!-- KPIs RÉORGANISÉS (Ordre : CA, Commandes, Encaissements, Créances, Clients Actifs, Visites) -->
+            <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr); gap:12px; margin-bottom:12px;">
+                <div class="stat-box glass" style="text-align:left; padding:16px; border-left:3px solid var(--primary);">
+                    <span class="lbl" style="font-size:0.65em; opacity:0.7;">CA Mensuel (HT)</span>
+                    <span class="num" id="s-ca-month" style="font-size:1.2em; color:var(--primary); margin-top:4px; display:block;">0 DA</span>
+                </div>
+                <div class="stat-box glass" style="text-align:left; padding:16px; border-left:3px solid var(--purple);">
+                    <span class="lbl" style="font-size:0.65em; opacity:0.7;">Commandes</span>
+                    <span class="num" id="s-orders-month" style="font-size:1.2em; color:var(--purple); margin-top:4px; display:block;">0</span>
+                </div>
+            </div>
+
+            <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr); gap:12px; margin-bottom:12px;">
+                <div class="stat-box glass" style="text-align:left; padding:16px; border-left:3px solid var(--green);">
+                    <span class="lbl" style="font-size:0.65em; opacity:0.7;">Encaissements</span>
+                    <span class="num" id="s-collected-home" style="font-size:1.2em; color:var(--green); margin-top:4px; display:block;">0 DA</span>
+                </div>
+                <div class="stat-box glass" style="text-align:left; padding:16px; border-left:3px solid var(--red);">
+                    <span class="lbl" style="font-size:0.65em; opacity:0.7;">Solde Créances</span>
+                    <span class="num" id="s-debt" style="font-size:1.2em; color:var(--red); margin-top:4px; display:block;">0 DA</span>
+                </div>
+            </div>
+
+            <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr); gap:12px; margin-bottom:24px;">
+                <div class="stat-box glass" style="text-align:left; padding:16px; border-left:3px solid var(--orange);">
+                    <span class="lbl" style="font-size:0.65em; opacity:0.7;">Clients Actifs</span>
+                    <span class="num" id="s-active-clients" style="font-size:1.2em; color:var(--orange); margin-top:4px; display:block;">0</span>
+                </div>
+                <div class="stat-box glass" style="text-align:left; padding:16px; border-left:3px solid var(--accent);">
+                    <span class="lbl" style="font-size:0.65em; opacity:0.7;">Visites Effectuées</span>
+                    <span class="num" id="s-visites-count" style="font-size:1.2em; color:var(--accent); margin-top:4px; display:block;">0</span>
+                </div>
+            </div>
+
+            <div class="kpi-card glass" style="margin-bottom:24px; padding:12px 16px;">
+                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:0.7em; font-weight:800; color:var(--text-muted); text-transform:uppercase;">Objectif du mois</span>
+                    <span id="perf-percent-home" style="font-weight:900; color:var(--primary); font-size:0.9em;">0%</span>
+                </div>
+                <div class="progress-bar-container" style="height:6px;">
+                    <div class="progress-bar-fill" id="perf-bar-home" style="width:0%;"></div>
+                </div>
+            </div>
+
+            <!-- ACTION PRIORITAIRE : TOURNÉE -->
+            <div class="sec-header">
+                <h3 class="sec-title">🎯 Tournée du Jour</h3>
+                <span style="font-size:0.7em; color:var(--text-muted); font-weight:600;">PJP — <span id="pjp-count">0</span> clients</span>
+            </div>
+            <div id="pjpList" style="margin-bottom:32px;"></div>
+
+            <!-- NEWSFLASH (COMPACT) -->
+            <div id="news-flash" style="margin-bottom:24px;"></div>
+        </div>
+
+        <!-- CLIENTS -->
+        <div class="page" id="page-clients">
+            <div class="sec-header">
+                <h3 class="sec-title">Mes Clients</h3>
+                <button class="btn btn-primary" style="padding: 8px 16px; border-radius: 12px;"
+                    onclick="openAddClientModal()"><i class="fas fa-plus"></i> Nouveau</button>
+            </div>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="clientSearch" placeholder="Rechercher..." oninput="renderClients()">
+            </div>
+            <div id="clientsList"></div>
+            
+            <div class="sec-header" style="margin-top:32px;">
+                <h3 class="sec-title">🎯 Prospects (En attente)</h3>
+            </div>
+            <div id="prospectsList"></div>
+        </div>
+
+        <!-- COMMANDES -->
+        <div class="page" id="page-order">
+            <div class="sec-header">
+                <h3 class="sec-title">Prise de Commande</h3>
+            </div>
+            
+            <!-- ÉTAPE 1 : CHOIX CLIENT -->
+            <div class="field" style="margin-bottom:12px;">
+                <label class="label">Client</label>
+                <select id="orderClient" class="select" onchange="onClientSelected()" style="border-radius:18px; background-color:var(--surface-low);"></select>
+            </div>
+
+            <div class="fast-order-layout">
+                <!-- Header Client -->
+                <div class="order-header-compact" style="flex-shrink:0; padding:15px 0 5px 0;">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+                        <div class="client-avatar" id="orderClientAvatar" style="width:40px; height:40px; font-size:1.1em;">?</div>
+                        <div style="flex:1;">
+                            <h3 id="orderClientName" style="font-size:1em; margin-bottom:2px;">Sélectionner un client</h3>
+                            <p id="orderClientVille" style="font-size:0.7em; color:var(--text-muted); font-weight:600;">Choix requis pour commander</p>
+                        </div>
+                        <button class="btn btn-surface" onclick="showPage('clients')" style="padding:8px 12px; font-size:0.75em; font-weight:700;">
+                            <i class="fas fa-user-edit"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Section Recherche & Résultats -->
+                <div class="search-area">
+                    <div class="search-box glass" style="margin:0;">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="prodSearch" placeholder="Rechercher produit ou parfum..." oninput="renderProducts()">
+                    </div>
+                    <div id="searchResultsList" class="search-results-container">
+                        <!-- JS inject: Liste compacte de produits filtrés -->
+                    </div>
+                </div>
+
+                <!-- Panier Permanent -->
+                <div class="persistent-basket-section">
+                    <div class="basket-header-fast">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <i class="fas fa-shopping-basket" style="color:var(--primary);"></i>
+                            <h4 style="font-size:0.85em; font-weight:800; text-transform:uppercase; letter-spacing:0.05em;">Panier</h4>
+                        </div>
+                        <span id="basketCountBadgeFast" style="font-size:0.7em; font-weight:700; color:var(--text-muted);">0 articles</span>
+                    </div>
+
+                    <div id="persistentBasketList" class="basket-scroll-area">
+                        <!-- JS inject: Liste détaillée du panier -->
+                        <div style="text-align:center; padding:60px 20px; color:var(--text-muted); font-size:0.8em;">
+                            <i class="fas fa-cart-arrow-down" style="font-size:3em; display:block; margin-bottom:15px; opacity:0.1;"></i>
+                            Le panier est vide.<br>Utilisez la recherche ci-dessus.
+                        </div>
+                    </div>
+
+                    <div class="basket-footer-fast">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                            <span style="font-weight:700; font-size:0.75em; color:var(--text-muted); text-transform:uppercase;">Montant Total</span>
+                            <span id="basketTotalFast" style="font-size:1.4em; font-weight:900; color:var(--primary);">0 DA</span>
+                        </div>
+                        <button class="btn btn-primary" id="btnSubmitFast" onclick="submitOrder()" disabled style="width:100%; padding:15px; font-weight:800; font-size:0.95em;">
+                            🚀 Valider & Générer BL
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="loyaltyWidget"></div>
+        </div>
+
+        <!-- SUIVI & BILAN -->
+        <div class="page" id="page-orders">
+            <!-- Headers supprimés pour gagner de l'espace mobile -->
+            
+            <div class="tabs-container" style="display:flex; gap:6px; margin-bottom:20px; background:var(--surface-low); padding:4px; border-radius:14px;">
+                <button class="tab-btn active" id="tab-orders" onclick="switchSuiviTab('orders')" style="flex:1; padding:8px; border:none; border-radius:10px; background:var(--surface-high); color:var(--text); font-weight:700; font-size:0.75em; cursor:pointer; transition:all 0.2s;">Commandes</button>
+                <button class="tab-btn" id="tab-finance" onclick="switchSuiviTab('finance')" style="flex:1; padding:8px; border:none; border-radius:10px; background:none; color:var(--text-muted); font-weight:700; font-size:0.75em; cursor:pointer; transition:all 0.2s;">Finance</button>
+                <button class="tab-btn" id="tab-payments" onclick="switchSuiviTab('payments')" style="flex:1; padding:8px; border:none; border-radius:10px; background:none; color:var(--text-muted); font-weight:700; font-size:0.75em; cursor:pointer; transition:all 0.2s;">Paiements</button>
+                <button class="tab-btn" id="tab-perf" onclick="switchSuiviTab('perf')" style="flex:1; padding:8px; border:none; border-radius:10px; background:none; color:var(--text-muted); font-weight:700; font-size:0.75em; cursor:pointer; transition:all 0.2s;">Analyse</button>
+            </div>
+
+            <div id="suivi-orders-view">
+                <div id="myOrdersList"></div>
+            </div>
+
+            <div id="suivi-finance-view" style="display:none;">
+                <div id="myFinanceList"></div>
+            </div>
+
+            <div id="suivi-payments-view" style="display:none;">
+                <div class="stat-box glass" style="margin-bottom:16px; text-align:left; background:linear-gradient(135deg, var(--surface-low), var(--surface-high)); border-left:4px solid var(--green);">
+                    <div style="font-size:0.7em; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Bilan Encaissement (Mois)</div>
+                    <div style="font-size:1.5em; font-weight:900; color:var(--green); margin-top:4px;" id="suivi-total-collected">0 DA</div>
+                </div>
+                <div id="myPaymentsList"></div>
+            </div>
+
+            <!-- ANALYSE & PERFORMANCE (Moved from Home) -->
+            <div id="suivi-perf-view" style="display:none;">
+                <div class="kpi-card glass" style="margin-bottom:24px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="kpi-label">Progression Objectif Mensuel</span>
+                        <span id="perf-percent" style="font-weight:900; color:var(--primary); font-size:0.9em;">0%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="perf-bar"></div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:0.75em;">
+                        <span id="perf-actual" style="font-weight:700;">0 DA</span>
+                        <span id="perf-target" style="color:var(--text-muted);">/ 0 DA</span>
+                    </div>
+                </div>
+
+                <div id="sales-pulse" style="margin-bottom:24px;"></div>
+                
+                <h4 class="sec-title" style="font-size:0.9em; margin-bottom:12px;">🏆 Top Produits</h4>
+                <div id="top3-products" style="margin-bottom:24px;"></div>
+            </div>
+        </div>
+
+        <!-- CAMION -->
+        <div class="page" id="page-truck">
+            <div class="sec-header">
+                <h3 class="sec-title">Mon Camion</h3>
+            </div>
+            <div class="item-card" style="background:rgba(14, 165, 233, 0.05); border-color:var(--accent);">
+                <div style="font-size:0.75em; color:var(--muted); text-transform:uppercase;">Statut Chargement</div>
+                <div style="font-weight:900; color:var(--accent); font-size:1.2em; margin-top:4px;">PRÊT À LIVRER</div>
+            </div>
+            <div id="truckStockList"></div>
+            <button class="btn btn-success" style="width:100%; margin-top:24px; padding:16px;"
+                onclick="generateEndOfDayReport()">Clôturer ma journée</button>
+        </div>
+
+        <!-- ACTUS FULL -->
+        <div class="page" id="page-actus">
+            <div class="sec-header">
+                <h3 class="sec-title">Actualités</h3>
+            </div>
+            <div id="actusFullList"></div>
+        </div>
+
+    </div>
+
+    <!-- Navigation Dock -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" id="nav-home" onclick="showPage('home')">
+            <i class="fas fa-home-alt"></i><span>Accueil</span>
+        </button>
+        <button class="nav-item" id="nav-actus" onclick="showPage('actus')">
+            <i class="fas fa-bullhorn"></i><span>Actus</span>
+        </button>
+        <button class="nav-item nav-center" id="nav-order" onclick="showPage('order')">
+            <div class="nav-fab"><i class="fas fa-plus"></i></div>
+        </button>
+        <button class="nav-item" id="nav-clients" onclick="showPage('clients')">
+            <i class="fas fa-users"></i><span>Clients</span>
+        </button>
+        <button class="nav-item" id="nav-orders" onclick="showPage('orders')">
+            <i class="fas fa-history"></i><span>Suivi</span>
+        </button>
+    </nav>
+
+    <!-- Overlay Alerts -->
+    <div class="toast" id="toast"></div>
+
+    <div class="modal-overlay" id="modalOrderDetails">
+        <div class="modal-sheet glass" style="max-height:85vh; border-radius: 24px 24px 0 0;">
+            <div class="modal-header">
+                <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                    <h3 class="sec-title" id="od-title" style="margin:0;">Détails Commande</h3>
+                    <button class="btn btn-close" onclick="closeModal('modalOrderDetails')"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div class="modal-body" style="padding:0;">
+                <div style="padding:16px; border-bottom:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.02);">
+                    <div id="od-client" style="font-weight:900; font-size:1.1em;">Client Nom</div>
+                    <div id="od-meta" style="font-size:0.75em; color:var(--text-muted); margin-top:4px;">Date • BL</div>
+                </div>
+                <div id="od-list" style="padding:8px 0;">
+                    <!-- Items inject -->
+                </div>
+                <div style="padding:20px; border-top:1px solid rgba(255,255,255,0.05); text-align:right;">
+                    <div style="font-size:0.8em; color:var(--text-muted); text-transform:uppercase;">TOTAL COMMANDE</div>
+                    <div id="od-total" style="font-size:1.4em; font-weight:900; color:var(--primary); margin-top:4px;">0 DA</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-surface" style="width:100%;" onclick="closeModal('modalOrderDetails')">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-sheet"
+            style="max-height:fit-content; border-radius: 32px 32px 0 0; position:fixed; bottom:0;">
+            <div class="modal-header">
+                <h3 class="sec-title">Confirmation</h3>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMsg" style="font-size:0.9em; line-height:1.5; color:var(--muted)"></p>
+            </div>
+            <div class="modal-footer" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <button class="btn btn-surface" onclick="closeModal()">Annuler</button>
+                <button class="btn btn-primary" onclick="doSubmitOrder()">Confirmer ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- HELPER GLOBAL ---
+        window._isDateInMonth = (dateStr, monthStr) => {
+            if (!dateStr || !monthStr) return false;
+            const d = String(dateStr);
+            const mStr = String(monthStr);
+            // Cas 1: ISO ou YYYY-MM-DD (2026-02)
+            if (d.startsWith(mStr)) return true;
+            // Cas 2: Format FR DD/MM/YYYY ou D/M/YYYY
+            const [y, m] = mStr.split('-'); 
+            if (!y || !m) return false;
+            const shortM = parseInt(m).toString(); 
+            const frLong = `/${m}/${y}`;
+            const frShort = `/${shortM}/${y}`;
+            if (d.includes(frLong) || d.includes(frShort)) return true;
+            if (d.includes(mStr)) return true;
+            return false;
+        };
+
+        // ── Auth ──────────────────────────────────────────────────────
+        let ME = OLGA_AUTH.requireRole('admin', 'rc', 'commercial', 'livreur', 'recouvrement', 'polyvalent');
+
+        // ── MODULE SIGNATURE UNIFIÉ (OlgaSignature) ──────────────────
+        let _activeSig = null;   // Pour BL/Livraison
+        let _activePaySig = null; // Pour Paiements
+        let _currentDeliveryId = null;
+
+        const OlgaSignature = {
+            init(canvasId, height = 200) {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) return null;
+                const ctx = canvas.getContext('2d');
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                
+                // Ajustement dynamique de la résolution
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = height * ratio;
+                ctx.scale(ratio, ratio);
+                
+                ctx.strokeStyle = "#1e293b";
+                ctx.lineWidth = 3;
+                ctx.lineCap = "round";
+
+                let isSig = false;
+                const getPos = (e) => {
+                    const rect = canvas.getBoundingClientRect();
+                    const clientX = (e.touches && e.touches.length) ? e.touches[0].clientX : e.clientX;
+                    const clientY = (e.touches && e.touches.length) ? e.touches[0].clientY : e.clientY;
+                    return { x: clientX - rect.left, y: clientY - rect.top };
+                };
+
+                const start = (e) => { 
+                    isSig = true; 
+                    ctx.beginPath(); 
+                    const p = getPos(e); 
+                    ctx.moveTo(p.x, p.y); 
+                    if(e.cancelable) e.preventDefault(); 
+                };
+                const move = (e) => { 
+                    if(!isSig) return; 
+                    const p = getPos(e); 
+                    ctx.lineTo(p.x, p.y); 
+                    ctx.stroke(); 
+                    if(e.cancelable) e.preventDefault(); 
+                };
+                const stop = () => { isSig = false; };
+
+                canvas.onmousedown = canvas.ontouchstart = start;
+                canvas.onmousemove = canvas.ontouchmove = move;
+                window.addEventListener('mouseup', stop);
+                window.addEventListener('touchend', stop);
+
+                return {
+                    clear: () => ctx.clearRect(0, 0, canvas.width, canvas.height),
+                    isEmpty: () => {
+                        const blank = document.createElement('canvas');
+                        blank.width = canvas.width; blank.height = canvas.height;
+                        return canvas.toDataURL() === blank.toDataURL();
+                    },
+                    getData: () => canvas.toDataURL('image/jpeg', 0.5)
+                };
+            }
+        };
+
+        function openSignatureModal(id) {
+            const o = _myOrders.find(x => String(x.id) === String(id));
+            if (!o) return;
+            _currentDeliveryId = id;
+            document.getElementById('sigClientLabel').innerText = o.client_nom || o.client || "Client Inconnu";
+            document.getElementById('sigOrderLabel').innerText = "BL : " + (o.bl || "PROV-"+String(o.id).slice(-6));
+
+            document.getElementById('modalSignature').classList.add('open');
+            setTimeout(() => { _activeSig = OlgaSignature.init('signaturePad', 200); }, 250);
+        }
+
+        function clearSignature() { if(_activeSig) _activeSig.clear(); }
+
+        async function confirmDeliveryWithSignature() {
+            if (!_activeSig || _activeSig.isEmpty()) {
+                return alert("La signature du client est requise pour valider la livraison.");
+            }
+
+            const o = _myOrders.find(x => String(x.id) === String(_currentDeliveryId));
+            if (!o) return;
+
+            try {
+                showToast("Validation de la livraison...");
+                o.status = 'livre';
+                o.deliveryStatus = 'Livré'; // Pour compatibilité DB
+                o.signature = _activeSig.getData();
+                o.date_livraison = new Date().toISOString();
+
+                const res = await OLGA_STORAGE.saveOrder(o);
+                if (res.success) {
+                    closeModal('modalSignature');
+                    showToast("Livraison enregistrée ✓");
+                    _syncFromStorage();
+                    OLGA_STORAGE.forceSync(ME.id);
+                } else {
+                    alert("Erreur storage: " + res.error);
+                }
+            } catch (err) {
+                alert("Erreur système: " + err.message);
+            }
+        }
+
+        // ── Data state ────────────────────────────────────────────────
+        let _clients = [];
+        let _prospects = [];
+        let _products = [];
+        let _myOrders = [];
+        let _searchSelection = {}; // { 'prodId::type': true }
+        let _orderItems = {}; 
+        let _editOrderId = null; // Suivi de l'édition d'une commande existante
+        let _selectedClient = null;
+
+        // ── API helper ────────────────────────────────────────────────
+        async function api(action, data = null) {
+            try {
+                const url = OLGA_CONFIG.API_URL;
+                if (data) {
+                    const r = await fetch(url, {
+                        method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body:
+                            JSON.stringify({ action, ...data })
+                    });
+                    return r.json();
+                } else {
+                    const r = await fetch(`${url}?action=${action}&commercial_id=${ME.id}`);
+                    return r.json();
+                }
+            } catch (e) { return { error: e.message }; }
+        }
+
+        // ── Monitor ──
+        window.onerror = (msg, url, line) => {
+            const banner = document.getElementById('errorBanner');
+            const msgEl = document.getElementById('errorMsg');
+            if (banner && msgEl) {
+                banner.style.display = 'block';
+                msgEl.textContent = `Erreur: ${msg} (Ligne ${line})`;
+            }
+            console.error("[CRITICAL]", msg, url, line);
+        };
+
+        (async () => {
+            try {
+                console.log("[App] Phase 1: Auth & UI...");
+                if (ME) {
+                    const nameEl = document.getElementById('userName');
+                    if (nameEl) nameEl.textContent = `${ME.prenom} ${ME.nom}`;
+                    
+                    const nameLargeEl = document.getElementById('userNameLarge');
+                    if (nameLargeEl) nameLargeEl.textContent = ME.prenom || ME.nom;
+                    
+                    const dateEl = document.getElementById('todayDate');
+                    if (dateEl) {
+                        const opt = { weekday: 'long', day: 'numeric', month: 'long' };
+                        dateEl.textContent = new Date().toLocaleDateString('fr-FR', opt);
+                    }
+                }
+
+                console.log("[App] Phase 2: Init Storage...");
+                await OLGA_STORAGE.init(() => {
+                    console.log("[App] Storage Refresh Callback triggered (Background Sync Done).");
+                    _syncFromStorage();
+                });
+
+                console.log("[App] Phase 3: Rendu initial depuis cache Supabase...");
+                _syncFromStorage();
+
+                // Signage & Nav Ready.
+                showPage('home');
+
+                window.addEventListener('olga-realtime', (e) => {
+                    const { table, type } = e.detail;
+                    console.log(`📡 [Terrain] Mise à jour reçue: ${table} (${type})`);
+                    _syncFromStorage();
+                });
+                
+                console.log("[App] ✅ Démarrage complet réussi.");
+                document.getElementById('todayDate').textContent = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+            } catch (err) {
+                window.onerror(err.message || err, "app", 0);
+            }
+        })();
+
+        async function forceSync() {
+            const indicator = document.querySelector('.olga-sync-indicator');
+            const badge = document.getElementById('syncStatusBadge');
+            
+            if (indicator) indicator.classList.add('syncing');
+            if (badge) {
+                badge.classList.add('syncing', 'pending');
+                badge.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Sync en cours...';
+            }
+            
+            showToast("Mise à jour du catalogue et profil...");
+
+            await OLGA_STORAGE.forceSync(() => {
+                if (indicator) indicator.classList.remove('syncing');
+                if (badge) {
+                    badge.classList.remove('syncing', 'pending');
+                    badge.innerHTML = '<i class="fas fa-check-circle"></i> Données à jour ✓';
+                }
+                
+                // Rafraîchir le profil ME depuis la liste des users synchronisée
+                const allU = OLGA_STORAGE.getUsers() || [];
+                const updated = allU.find(u => String(u.id) === String(ME.id));
+                if (updated) {
+                    console.log("[Sync] Profil utilisateur mis à jour :", updated.secteur);
+                    ME = { ...ME, ...updated };
+                    sessionStorage.setItem('olga_user', JSON.stringify(ME));
+                    
+                    // Mettre à jour l'UI
+                    const nameEl = document.getElementById('userName');
+                    if (nameEl) nameEl.textContent = `${ME.prenom} ${ME.nom}`;
+                    const nameLargeEl = document.getElementById('userNameLarge');
+                    if (nameLargeEl) nameLargeEl.textContent = ME.prenom || ME.nom;
+                }
+
+                _syncFromStorage();
+                showToast("Données et Profil à jour ✓");
+            });
+        }
+
+        function _syncFromStorage() {
+            const allC = OLGA_STORAGE.getClients() || [];
+            const allOrders = OLGA_STORAGE.getOrders() || [];
+            const allPayments = OLGA_STORAGE.getPayments() || [];
+            const allVisits = OLGA_STORAGE.getVisits() || [];
+            const allSlips = OLGA_STORAGE.getLoadingSlips() || [];
+
+            // Marquage des commandes chargées (BC)
+            allOrders.forEach(o => {
+                const slip = allSlips.find(s => (s.orders || []).map(String).includes(String(o.id)));
+                o.bc_id = slip ? slip.id : null;
+            });
+            
+            const mySectors = (ME.secteur || "").split(",").filter(x => x);
+            const myCommunes = mySectors.map(s => {
+                const match = s.match(/\(([^)]+)\)/);
+                return match ? match[1] : s;
+            });
+
+            console.log(`[Sync] ${allC.length} clients, ${allOrders.length} commandes, ${allPayments.length} paiements.`);
+
+            const filterBySector = (c) => {
+                if (ME.role === 'admin' || ME.role === 'rc') return true;
+                if (String(c.commercial_id || c.commercialId) === String(ME.id)) return true;
+                if (myCommunes.length > 0) {
+                    const commune = (c.commune || "").toLowerCase();
+                    const wilaya = (c.wilaya || "").toLowerCase();
+                    return myCommunes.some(s => {
+                        const sector = s.toLowerCase().trim();
+                        if (!sector) return false;
+                        return commune.includes(sector) || wilaya.includes(sector);
+                    });
+                }
+                return false;
+            };
+
+            // 1. Base Data & Filtre Mensuel
+            let selEl = document.getElementById('dashboardMonth');
+            let selectedMonth = selEl ? selEl.value : "";
+            
+            if (!selectedMonth) {
+                selectedMonth = new Date().toISOString().slice(0, 7);
+                if (selEl) selEl.value = selectedMonth;
+            }
+
+            console.log(`🔍 [Filtre] Période sélectionnée : ${selectedMonth}`);
+
+            _clients = allC.filter(c => c.type === 'client' && filterBySector(c));
+            _prospects = allC.filter(c => c.type === 'prospect' && filterBySector(c));
+            _products = OLGA_STORAGE.getProducts();
+            
+            _myOrders = allOrders
+                .filter(o => {
+                    if (ME.role === 'admin' || ME.role === 'rc') return true;
+                    if (String(o.commercial_id || o.commercialId) === String(ME.id)) return true;
+                    return _clients.some(c => String(c.id) === String(o.client_id));
+                })
+                .sort((a, b) => b.id - a.id);
+
+            // 2. Debt Calculation (Global - Toujours à jour)
+            let totalDebt = 0;
+            _clients.forEach(c => {
+                const cOrders = allOrders.filter(o => String(o.client_id) === String(c.id) && (o.status === 'valide' || o.status === 'livre'));
+                const cPayments = allPayments.filter(p => String(p.client_id) === String(c.id));
+                const invoiced = cOrders.reduce((s, o) => s + (o.total || 0), 0);
+                const paid = cPayments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
+                c.creances = invoiced - paid;
+                if (c.creances > 0) totalDebt += c.creances;
+            });
+
+            const sDebt = document.getElementById('s-debt');
+            if (sDebt) sDebt.textContent = Math.round(totalDebt).toLocaleString() + ' DA';
+
+            // 3. KPI Mensuels (Calculés selon selectedMonth)
+            const monthOrdersArr = _myOrders.filter(o => _isDateInMonth(o.date, selectedMonth));
+            const monthPaymentsArr = allPayments.filter(p => {
+                const isCorrectMonth = _isDateInMonth(p.date, selectedMonth);
+                const isMyPayment = ME.role === 'admin' || ME.role === 'rc' || (p.user_id && String(p.user_id) === String(ME.id));
+                const isMyClient = _clients.some(c => String(c.id) === String(p.client_id));
+                return isCorrectMonth && (isMyPayment || isMyClient);
+            });
+            const monthVisitsArr = allVisits.filter(v => _isDateInMonth(v.date, selectedMonth) && (ME.role === 'admin' || ME.role === 'rc' || String(v.user_id) === String(ME.id)));
+            
+            const totalCA = monthOrdersArr.filter(o => o.status === 'valide' || o.status === 'livre').reduce((s,o) => s + (o.total||0), 0);
+            const totalOrders = monthOrdersArr.length;
+            const totalCollected = monthPaymentsArr.reduce((s,p) => s + (Number(p.amount)||0), 0);
+            const activeClientsCount = [...new Set(monthOrdersArr.map(o => String(o.client_id)))].length;
+            const totalVisitsCount = monthVisitsArr.length;
+
+            if(document.getElementById('s-ca-month')) document.getElementById('s-ca-month').textContent = Math.round(totalCA).toLocaleString() + ' DA';
+            if(document.getElementById('s-orders-month')) document.getElementById('s-orders-month').textContent = totalOrders;
+            if(document.getElementById('s-collected-home')) document.getElementById('s-collected-home').textContent = Math.round(totalCollected).toLocaleString() + ' DA';
+            if(document.getElementById('s-active-clients')) document.getElementById('s-active-clients').textContent = activeClientsCount;
+            if(document.getElementById('s-visites-count')) document.getElementById('s-visites-count').textContent = totalVisitsCount;
+
+            // 4. Daily Tour (Aujourd'hui uniquement)
+            const today = new Date().toISOString().split('T')[0];
+            const todayVisitsArr = allVisits.filter(v => (v.date || "").startsWith(today) && String(v.user_id) === String(ME.id));
+            const todayOrdersCount = _myOrders.filter(o => (o.date || "").startsWith(today)).length;
+            
+            const pjpClients = _clients.filter(c => {
+                const last = c.last_visit_date || '2000-01-01';
+                const diff = Math.floor((new Date() - new Date(last)) / 86400000);
+                return diff >= (c.frequence_visite || 7);
+            });
+            const totalPJP = [...new Set([...pjpClients.map(c=>c.id), ...todayVisitsArr.map(v => v.client_id)])].length;
+            
+            const pjpCountEl = document.getElementById('pjp-count');
+            if (pjpCountEl) pjpCountEl.textContent = pjpClients.length;
+
+            // 5. Performance (Objectives)
+            const objectifs = OLGA_STORAGE.getObjectifs(ME.id) || [];
+            const objMoins = objectifs.find(o => o.mois === selectedMonth) || { ca: 0 };
+            const targetCA = objMoins.ca || 0;
+            const actualCA = totalCA; // Aligné sur le CA du mois sélectionné
+            
+            const percent = targetCA > 0 ? Math.min(100, Math.round((actualCA / targetCA) * 100)) : 0;
+            
+            const perfBarHome = document.getElementById('perf-bar-home');
+            const perfPercentHome = document.getElementById('perf-percent-home');
+
+            if (perfBarHome) perfBarHome.style.width = percent + '%';
+            if (perfPercentHome) perfPercentHome.textContent = percent + '%';
+
+            // Mise à jour de l'onglet performance si présent
+            const perfBar = document.getElementById('perf-bar');
+            const perfActual = document.getElementById('perf-actual');
+            const perfTarget = document.getElementById('perf-target');
+            const perfPercent = document.getElementById('perf-percent');
+
+            if (perfBar) perfBar.style.width = percent + '%';
+            if (perfActual) perfActual.textContent = Math.round(actualCA).toLocaleString() + ' DA';
+            if (perfTarget) perfTarget.textContent = '/ ' + (targetCA > 0 ? Math.round(targetCA).toLocaleString() + ' DA' : '—');
+            if (perfPercent) perfPercent.textContent = percent + '%';
+
+            renderAlerts();
+            _renderSalesPulse(actualCA, targetCA, percent, selectedMonth);
+            _renderTop3(selectedMonth);
+            _renderSilentClients();
+
+            renderOrderClientSelect();
+            renderClients();
+            renderRecentOrders();
+            renderNewsFlash();
+            renderMyOrders();
+            renderMyPayments();
+            renderFinance();
+            renderProspects();
+            renderProducts();
+            renderPJP();
+            renderTruckStock();
+        }
+
+        function renderOrderClientSelect() {
+            const sel = document.getElementById('orderClient');
+            if (!sel) return;
+            const currentVal = sel.value;
+            sel.innerHTML = '<option value="">— Sélectionner un client —</option>';
+            _clients.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = `${c.nom} (${c.commune || '—'})`;
+                sel.appendChild(opt);
+            });
+            if (currentVal) sel.value = currentVal;
+        }
+
+        function switchSuiviTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.style.background = 'none';
+                b.style.color = 'var(--text-muted)';
+                b.classList.remove('active');
+            });
+            const activeTab = document.getElementById('tab-' + tabName);
+            if (activeTab) {
+                activeTab.style.background = 'var(--surface-high)';
+                activeTab.style.color = 'var(--text)';
+                activeTab.classList.add('active');
+            }
+            
+            document.getElementById('suivi-orders-view').style.display = tabName === 'orders' ? 'block' : 'none';
+            document.getElementById('suivi-finance-view').style.display = tabName === 'finance' ? 'block' : 'none';
+            document.getElementById('suivi-payments-view').style.display = tabName === 'payments' ? 'block' : 'none';
+            document.getElementById('suivi-perf-view').style.display = tabName === 'perf' ? 'block' : 'none';
+        }
+
+        let _paySigCtx = null;
+        let _paySigPad = null;
+
+        function openPaymentModal(id, nom, debt) {
+            _selectedClient = _clients.find(x => String(x.id) === String(id));
+            document.getElementById('pay-client-id').value = id;
+            document.getElementById('pay-client-nom').textContent = nom;
+            document.getElementById('pay-client-debt').textContent = `Créance : ${Number(debt || 0).toLocaleString()} DA`;
+            document.getElementById('pay-amount').value = '';
+            document.getElementById('pay-note').value = '';
+            document.getElementById('pay-date-display').value = new Date().toLocaleDateString('fr-FR');
+            
+            document.getElementById('modalPayment').classList.add('open');
+            setTimeout(() => { _activePaySig = OlgaSignature.init('paySignaturePad', 150); }, 250);
+        }
+
+        function clearPaySignature() { if(_activePaySig) _activePaySig.clear(); }
+
+        async function submitPayment() {
+            const id = document.getElementById('pay-client-id').value;
+            const amount = parseFloat(document.getElementById('pay-amount').value);
+            const mode = document.getElementById('pay-mode').value;
+            const note = document.getElementById('pay-note').value;
+
+            if (!amount || amount <= 0) return alert("Veuillez saisir un montant valide.");
+            if (!_activePaySig || _activePaySig.isEmpty()) return alert("La signature du client est requise.");
+
+            const pay = {
+                id: Date.now(),
+                client_id: id,
+                client_nom: document.getElementById('pay-client-nom').textContent,
+                amount: amount,
+                mode: mode,
+                notes: note,
+                user_id: ME.id,
+                user_nom: (ME.prenom + ' ' + ME.nom).trim(),
+                signature: _activePaySig.getData(),
+                date: new Date().toISOString()
+            };
+
+            closeModal('modalPayment');
+            showToast("Enregistrement de l'encaissement...");
+
+            const res = await OLGA_STORAGE.addPayment(pay);
+            if (res.success) {
+                showToast("Encaissement validé ✓");
+                _syncFromStorage();
+                OLGA_STORAGE.forceSync(ME.id);
+            } else {
+                alert("Erreur: " + res.error);
+            }
+        }
+
+        function renderMyPayments() {
+            const el = document.getElementById('myPaymentsList');
+            if (!el) return;
+            
+            const selMonth = document.getElementById('dashboardMonth').value;
+            const allP = OLGA_STORAGE.getPayments() || [];
+            const list = allP.filter(p => {
+                const isCorrectMonth = !selMonth || _isDateInMonth(p.date, selMonth);
+                if (!isCorrectMonth) return false;
+
+                if (ME.role === 'admin' || ME.role === 'rc') return true;
+                const isMyPayment = (p.user_id && String(p.user_id) === String(ME.id));
+                const isMyClient = _clients.some(c => String(c.id) === String(p.client_id));
+                return isMyPayment || isMyClient;
+            }).sort((a,b) => b.id - a.id);
+
+            // Bilan total affiché en haut de la liste
+            const total = list.reduce((s,p) => s + (Number(p.amount)||0), 0);
+            const collectedEl = document.getElementById('suivi-total-collected');
+            if(collectedEl) collectedEl.textContent = total.toLocaleString() + ' DA';
+
+            if (list.length === 0) {
+                el.innerHTML = '<div style="text-align:center; padding:40px; color:var(--muted);">Aucun encaissement</div>';
+                return;
+            }
+
+            el.innerHTML = list.map(p => {
+                const d = new Date(p.date || p.id);
+                const fd = d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+                const c = _clients.find(x => String(x.id) === String(p.client_id));
+                const cName = p.client_nom || (c ? c.nom : "Client #" + String(p.client_id).slice(-4));
+                
+                return `
+                <div class="item-card glass" style="padding:14px; margin-bottom:10px; border-radius:16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="font-weight:900; font-size:0.95em; color:white;">${cName}</div>
+                            <div style="font-size:0.7em; color:var(--text-muted); margin-top:2px;"><i class="fas fa-calendar-alt"></i> ${fd}</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-weight:900; color:var(--green); font-size:1.1em;">${(p.amount||0).toLocaleString()} <span style="font-size:0.6em; font-weight:400; opacity:0.6;">DA</span></div>
+                            <div style="font-size:0.6em; color:var(--text-muted); text-transform:uppercase;">${p.mode || 'Cash'}</div>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // ── ÉTAT DES VENTES : RYTHME + PRÉVISION ─────────────────────
+        function _renderSalesPulse(actualCA, targetCA, percent, selectedMonth) {
+            const el = document.getElementById('sales-pulse');
+            if (!el) return;
+ 
+            const now = new Date();
+            const realToday = now.toISOString().slice(0, 7);
+            
+            const [year, month] = selectedMonth.split('-').map(Number);
+            const daysInMonth = new Date(year, month, 0).getDate();
+            
+            let daysPassed, daysLeft;
+            if (selectedMonth < realToday) {
+                daysPassed = daysInMonth; daysLeft = 0;
+            } else if (selectedMonth > realToday) {
+                daysPassed = 0; daysLeft = daysInMonth;
+            } else {
+                daysPassed = now.getDate(); daysLeft = daysInMonth - daysPassed;
+            }
+
+            const dailyRate = daysPassed > 0 ? actualCA / daysPassed : 0;
+            const projection = Math.round(dailyRate * daysInMonth);
+            const expectedPace = targetCA > 0 ? (targetCA / daysInMonth) * daysPassed : 0;
+            const neededPerDay = targetCA > 0 && daysLeft > 0 ? Math.round(Math.max(0, targetCA - actualCA) / daysLeft) : 0;
+ 
+            const monthLabel = new Date(year, month - 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+
+            let pulse, pulseColor, pulseIcon;
+            if (targetCA === 0) {
+                pulse = 'Aucun objectif fixé'; pulseColor = 'var(--text-muted)'; pulseIcon = '📊';
+            } else if (percent >= 100) {
+                pulse = 'Objectif atteint ! 🎉'; pulseColor = '#22c55e'; pulseIcon = '🏆';
+            } else if (actualCA >= expectedPace * 0.95) {
+                pulse = (selectedMonth < realToday) ? 'Objectif validé' : `Dans les temps — Besoin de ${neededPerDay.toLocaleString()} DA/jour`; 
+                pulseColor = '#22c55e'; pulseIcon = '🟢';
+            } else {
+                pulse = (selectedMonth < realToday) ? 'Objectif non atteint' : `En retard — Besoin de ${neededPerDay.toLocaleString()} DA/jour`;
+                pulseColor = selectedMonth < realToday ? '#ef4444' : '#f59e0b'; pulseIcon = '🔴';
+            }
+ 
+            el.innerHTML = `
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                    <div style="font-size:0.7em; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">État des Ventes — ${monthLabel}</div>
+                    <span style="font-size:0.75em; font-weight:700; color:${pulseColor};">${pulseIcon} ${percent}%</span>
+                </div>
+                <div style="background:var(--surface-low); border-radius:10px; height:8px; overflow:hidden; margin-bottom:10px;">
+                    <div style="height:100%; width:${percent}%; background:${pulseColor}; border-radius:10px; transition:width 0.8s ease;"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.75em;">
+                    <div><span style="font-weight:700; color:var(--text);">${Math.round(actualCA).toLocaleString()} DA</span><br><span style="color:var(--text-muted);">Réalisé</span></div>
+                    <div style="text-align:center;"><span style="font-weight:700; color:${pulseColor};">${projection.toLocaleString()} DA</span><br><span style="color:var(--text-muted);">Projection</span></div>
+                    <div style="text-align:right;"><span style="font-weight:700; color:var(--text);">${targetCA > 0 ? targetCA.toLocaleString() : '—'} DA</span><br><span style="color:var(--text-muted);">Objectif</span></div>
+                </div>
+                <div style="margin-top:10px; padding:8px 12px; background:${pulseColor}18; border-radius:10px; border-left:3px solid ${pulseColor}; font-size:0.75em; color:${pulseColor}; font-weight:600;">
+                    ${pulse}
+                </div>`;
+        }
+
+        // ── TOP 3 PRODUITS DU MOIS ────────────────────────────────────
+        function _renderTop3(currentMonth) {
+            const el = document.getElementById('top3-products');
+            if (!el) return;
+
+            // Agréger les ventes par produit depuis les commandes validées du mois
+            const monthOrders = _myOrders.filter(o =>
+                (o.status === 'valide' || o.status === 'livre') &&
+                (o.date || '').startsWith(currentMonth)
+            );
+
+            const prodMap = {};
+            monthOrders.forEach(o => {
+                (o.items || []).forEach(item => {
+                    const key = item.produit_nom || item.produit || 'Inconnu';
+                    if (!prodMap[key]) prodMap[key] = { nom: key, qty: 0, ca: 0 };
+                    prodMap[key].qty += (item.qty || 0);
+                    prodMap[key].ca += (item.total || 0);
+                });
+            });
+
+            const top3 = Object.values(prodMap).sort((a, b) => b.ca - a.ca).slice(0, 3);
+            const medals = ['🥇', '🥈', '🥉'];
+            const colors = ['#f59e0b', '#94a3b8', '#cd7c2f'];
+
+            if (top3.length === 0) {
+                el.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:20px; font-size:0.85em;">Aucune vente ce mois-ci</div>`;
+                return;
+            }
+
+            const maxCA = top3[0].ca || 1;
+            el.innerHTML = top3.map((p, i) => `
+                <div style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--glass-border);">
+                    <span style="font-size:1.3em;">${medals[i]}</span>
+                    <div style="flex:1;">
+                        <div style="font-weight:700; font-size:0.85em; color:var(--text);">${p.nom}</div>
+                        <div style="background:var(--surface-low); border-radius:6px; height:5px; margin-top:4px; overflow:hidden;">
+                            <div style="height:100%; width:${Math.round((p.ca/maxCA)*100)}%; background:${colors[i]}; border-radius:6px;"></div>
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-weight:700; font-size:0.85em; color:${colors[i]};">${p.ca.toLocaleString()} DA</div>
+                        <div style="font-size:0.7em; color:var(--text-muted);">Qté: ${p.qty}</div>
+                    </div>
+                </div>`).join('');
+        }
+
+        // ── CLIENTS SILENCIEUX ────────────────────────────────────────
+        function _renderSilentClients() {
+            const el = document.getElementById('silent-clients');
+            if (!el) return;
+
+            const now = new Date();
+            const silent = _clients.filter(c => {
+                const lastOrder = _myOrders
+                    .filter(o => String(o.client_id) === String(c.id) && (o.status === 'valide' || o.status === 'livre'))
+                    .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+                const lastDate = lastOrder ? new Date(lastOrder.date) : (c.last_visit_date ? new Date(c.last_visit_date) : null);
+                if (!lastDate) return true;
+                const daysSince = Math.floor((now - lastDate) / 86400000);
+                return daysSince > (c.frequence_visite || 14);
+            });
+
+            if (silent.length === 0) {
+                el.innerHTML = `<div style="text-align:center; color:#22c55e; padding:12px; font-size:0.85em;">✅ Tous vos clients sont actifs</div>`;
+                return;
+            }
+
+            el.innerHTML = silent.slice(0, 5).map(c => _getClientCardHTML(c, { showSource: 'silent' })).join('');
+        }
+
+        function renderTruckStock() {
+            const el = document.getElementById('truckStockList');
+            if (!el) return;
+            if (!ME.truck_stock || Object.keys(ME.truck_stock).length === 0) {
+                el.innerHTML = `<div class="item-card" style="text-align:center; padding:32px; border-style:dashed;">
+                    <i class="fas fa-truck-loading" style="font-size:2em; color:var(--muted); margin-bottom:12px; display:block;"></i>
+                    <p style="font-size:0.85em; color:var(--muted)">Votre camion est vide.</p>
+                </div>`;
+                return;
+            }
+            el.innerHTML = Object.entries(ME.truck_stock).map(([id, qty]) => {
+                const p = _products.find(x => x.id === parseInt(id));
+                if (!p || qty <= 0) return '';
+                const mult = OLGA_STORAGE.getPackMultiplier(p.pack);
+                const colis = Math.floor(qty / mult);
+                return `
+                <div class="item-card">
+                    <div class="item-main">
+                        <div class="avatar" style="background:rgba(14, 165, 233, 0.1); color:var(--accent);"><i class="fas fa-box"></i></div>
+                        <div class="item-info">
+                            <div class="item-name">${OLGA_STORAGE.cleanName(p.nom)}</div>
+                            <div class="item-sub">Format: ${p.pack || '—'}</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:1.1em; font-weight:900; color:var(--accent);">${colis}</div>
+                            <div style="font-size:0.6em; color:var(--muted); text-transform:uppercase;">Colis</div>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderNewsFlash() {
+            const allAnnouncements = OLGA_STORAGE.getAnnouncements() || [];
+            const announcements = allAnnouncements.filter(a => (a.target === 'all' || a.target === ME.role) && a.active !== false);
+            const list = document.getElementById('news-flash');
+            if (!list) return;
+            if (announcements.length === 0) {
+                list.innerHTML = ''; return;
+            }
+            const a = announcements[0]; // Only show the latest flash on home
+            const colors = {
+                warning: { bg: 'rgba(244, 63, 94, 0.1)', text: 'var(--red)', icon: 'fa-exclamation-circle' },
+                success: { bg: 'rgba(16, 185, 129, 0.1)', text: 'var(--green)', icon: 'fa-trophy' },
+                info: { bg: 'rgba(14, 165, 233, 0.1)', text: 'var(--accent)', icon: 'fa-info-circle' }
+            };
+            const c = colors[a.level] || colors.info;
+            list.innerHTML = `
+                <div class="item-card glass" style="border-left:4px solid ${c.text}; padding:14px; display:flex; gap:14px; align-items:center;">
+                    <i class="fas ${c.icon}" style="font-size:1.4em; color:${c.text};"></i>
+                    <div style="flex:1;">
+                        <div style="font-size:0.75em; font-weight:800; color:var(--text);">${a.title}</div>
+                        <div style="font-size:0.7em; color:var(--text-muted); margin-top:2px;">${a.message.substring(0,60)}...</div>
+                    </div>
+                </div>`;
+            
+            const fullList = document.getElementById('actusFullList');
+            if (fullList) fullList.innerHTML = announcements.map(a => {
+                const cl = colors[a.level] || colors.info;
+                return `
+                <div class="item-card glass" style="margin-bottom:12px;">
+                    <div style="display:flex; gap:12px; align-items:center; margin-bottom:10px;">
+                        <i class="fas ${cl.icon}" style="color:${cl.text};"></i>
+                        <span style="font-weight:700; font-size:0.9em;">${a.title}</span>
+                    </div>
+                    <p style="font-size:0.8em; color:var(--text-muted); line-height:1.4;">${a.message}</p>
+                    <div style="font-size:0.65em; color:var(--text-muted); margin-top:8px;">${new Date(a.date).toLocaleDateString()}</div>
+                </div>`;
+            }).join('');
+        }
+
+        function generateEndOfDayReport() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayOrders = _myOrders.filter(o => o.date === today && o.status === 'livre');
+            const totalCash = todayOrders.reduce((s, o) => s + (o.total || 0), 0);
+            let stockHtml = Object.entries(ME.truck_stock || {}).map(([id, qty]) => {
+                const p = _products.find(x => x.id === parseInt(id));
+                if (!p || qty <= 0) return '';
+                return `<li>${p.nom}: <strong>${Math.floor(qty / OLGA_STORAGE.getPackMultiplier(p.pack))} Colis</strong></li>`;
+            }).filter(h => h !== '').join('');
+            const msg = `
+                <div style="text-align:left;">
+                    <h3 style="color:var(--success); margin-bottom:15px;">🏁 RÉSUMÉ FIN DE JOURNÉE</h3>
+                    <p>📦 <strong>BL Livrés:</strong> ${todayOrders.length}</p>
+                    <p>💰 <strong>Total Encaissé:</strong> ${totalCash.toLocaleString()} DA</p>
+                    <hr style="margin:15px 0; border:1px solid var(--border);">
+                    <p>🏗️ <strong>Inventaire restant:</strong></p>
+                    <ul style="padding-left:20px; font-size:0.9em;">${stockHtml || '<li>Aucun stock</li>'}</ul>
+                </div>`;
+            document.getElementById('confirmMsg').innerHTML = msg;
+            document.getElementById('confirmModal').classList.add('open');
+        }
+
+        function _getClientCardHTML(c, options = {}) {
+            const initial = (c.nom || '?')[0].toUpperCase();
+            const debt = Number(c.creances || 0);
+            const today = new Date().toISOString().split('T')[0];
+            const visits = OLGA_STORAGE.getVisits() || [];
+            const visitedToday = visits.some(v => String(v.client_id) === String(c.id) && v.date === today);
+            
+            // Calcul du délai depuis dernier achat/visite pour l'analyse
+            const lastDateStr = c.last_visit_date || '2000-01-01';
+            const daysSince = Math.floor((new Date() - new Date(lastDateStr)) / 86400000);
+            const urgencyColor = daysSince > 21 ? 'var(--red)' : daysSince > 14 ? '#f59e0b' : 'var(--green)';
+
+            return `
+            <div class="item-card glass" style="${visitedToday ? 'border-style:dashed; opacity:0.8;' : ''}">
+                <div class="item-main">
+                    <div class="avatar">${initial}</div>
+                    <div class="item-info">
+                        <div class="item-name">
+                            ${c.nom} 
+                            ${visitedToday ? '<i class="fas fa-check-circle" style="color:var(--green); margin-left:4px;"></i>' : ''}
+                            <span class="badge pot-${c.potentiel||'C'}">${c.potentiel||'C'}</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                            <div class="item-sub"><i class="fas fa-location-dot" style="font-size:0.8em; opacity:0.6"></i> ${c.commune || '—'}</div>
+                            ${debt > 0 ? `<div style="font-size:0.7em; font-weight:700; color:var(--red);">• Doit ${debt.toLocaleString()} DA</div>` : ''}
+                            ${options.showSource === 'silent' ? `<div style="font-size:0.75em; font-weight:700; color:${urgencyColor};">Délai: ${daysSince}j</div>` : ''}
+                        </div>
+                    </div>
+                </div>
+                <div class="item-actions" style="display:grid; grid-template-columns:${visitedToday ? '1fr' : '1fr 1fr 1fr'}; gap:8px; margin-top:12px;">
+                    ${!visitedToday ? `
+                        <button class="btn btn-surface" style="font-size:0.75em; padding:10px 4px;" onclick="checkInVisit(${c.id}, '${c.nom.replace(/'/g, "\\'")}')">📍 Visiter</button>
+                        <button class="btn btn-primary" style="font-size:0.75em; padding:10px 4px;" onclick="startOrderFor(${c.id})">🛒 Commande</button>
+                        <button class="btn btn-surface" style="font-size:0.75em; padding:10px 4px; border-color:var(--green)40; color:var(--green);" onclick="openPaymentModal(${c.id}, '${c.nom.replace(/'/g, "\\'")}', ${debt})">💰 Encaisser</button>
+                    ` : `
+                        <div style="grid-column: span 1; background:var(--surface-low); padding:8px; border-radius:12px; text-align:center; color:var(--green); font-size:0.8em; font-weight:700; border:1px dashed var(--green)40;">
+                            <i class="fas fa-lock"></i> Visite effectuée ✓
+                        </div>
+                    `}
+                </div>
+            </div>`;
+        }
+
+        function renderPJP() {
+            const el = document.getElementById('pjpList');
+            if (!el) return;
+            
+            const pjp = _clients.filter(c => {
+                const last = c.last_visit_date || '2000-01-01';
+                const diff = Math.floor((new Date() - new Date(last)) / 86400000);
+                return diff >= (c.frequence_visite || 7);
+            }).slice(0, 5);
+
+            if (!pjp.length) {
+                el.innerHTML = `<div class="item-card glass" style="text-align:center; padding:32px; border-style:dashed; color:var(--text-muted);">Toutes les visites du jour sont terminées ✓</div>`;
+                return;
+            }
+
+            el.innerHTML = pjp.map(c => _getClientCardHTML(c)).join('');
+        }
+
+        // ── RAPPORT DE VISITE ─────────────────────────────────────
+        let _visitRapportClientId = null;
+        let _visitRapportClientNom = null;
+        let _visitKPIs = {};
+
+        function setKPI(btn) {
+            const field = btn.dataset.field;
+            const val = btn.dataset.val;
+            // Désactiver les autres boutons du même groupe
+            btn.closest('.kpi-toggle-group').querySelectorAll('.kpi-toggle').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            _visitKPIs[field] = val;
+        }
+
+        function openVisitRapport(id, nom) {
+            _visitRapportClientId = id;
+            _visitRapportClientNom = nom;
+            _visitKPIs = {
+                acheteur_present: 'oui',
+                commande_prise: 'oui',
+                mise_en_avant: 'bonne',
+                rupture_stock: 'non',
+                concurrent_actif: 'non',
+                satisfaction: 'satisfait'
+            };
+
+            // Réinitialiser les toggles
+            document.querySelectorAll('.kpi-toggle').forEach(b => {
+                b.classList.remove('active');
+                if (_visitKPIs[b.dataset.field] === b.dataset.val) b.classList.add('active');
+            });
+
+            // Date/Heure auto — non modifiable
+            const now = new Date();
+            document.getElementById('vr-client-nom').textContent = nom;
+            document.getElementById('vr-date').textContent = now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+            document.getElementById('vr-heure').textContent = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('vr-note').value = '';
+            document.getElementById('vr-promesse').value = '';
+
+            document.getElementById('modalVisiteRapport').classList.add('open');
+        }
+
+        async function submitVisitRapport() {
+            const now = new Date();
+            const note = document.getElementById('vr-note').value.trim();
+            const promesse = parseFloat(document.getElementById('vr-promesse').value) || 0;
+            const cmdPrise = _visitKPIs.commande_prise === 'oui';
+
+            const visitData = {
+                client_id: _visitRapportClientId,
+                client_nom: _visitRapportClientNom,
+                user_id: ME.id,
+                user_nom: ME.prenom + ' ' + ME.nom,
+                date: now.toISOString().split('T')[0],
+                heure: now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+                note: note,
+                promesse_ca: promesse,
+                // KPIs
+                acheteur_present: _visitKPIs.acheteur_present || 'oui',
+                commande_prise: _visitKPIs.commande_prise || 'non',
+                mise_en_avant: _visitKPIs.mise_en_avant || 'bonne',
+                rupture_stock: _visitKPIs.rupture_stock || 'non',
+                concurrent_actif: _visitKPIs.concurrent_actif || 'non',
+                satisfaction: _visitKPIs.satisfaction || 'neutre'
+            };
+
+            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'));
+
+            await OLGA_STORAGE.addVisit(visitData);
+
+            // Mettre à jour la date de dernière visite et la promesse CA du client
+            const c = _clients.find(x => String(x.id) === String(_visitRapportClientId));
+            if (c) {
+                c.last_visit_date = visitData.date;
+                if (visitData.promesse_ca > 0) {
+                    c.promesse_ca = visitData.promesse_ca;
+                }
+                await OLGA_STORAGE.saveClient(c);
+            }
+
+            // Sync et rafraîchissement
+            showToast('Rapport de visite enregistré ✓');
+            _syncFromStorage();
+            OLGA_STORAGE.forceSync(ME.id); // Background cloud sync
+
+            // Workflow Automatique : Visite -> Commande
+            if (cmdPrise) {
+                setTimeout(() => {
+                    startOrderFor(_visitRapportClientId);
+                }, 400);
+            }
+        }
+
+        // Ancienne fonction — maintenant ouvre le rapport
+        async function checkInVisit(id, nom) {
+            openVisitRapport(id, nom);
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            const m = document.getElementById('toast-msg');
+            if (t && m) {
+                m.textContent = msg;
+                t.classList.add('show');
+                setTimeout(() => t.classList.remove('show'), 3000);
+            }
+        }
+
+        function renderAlerts() {
+            const container = document.getElementById('alertsContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const alerts = [];
+
+            // Alerte 1: Créances élevées
+            const highDebtClients = _clients.filter(c => (Number(c.creances) || 0) > 50000);
+            if (highDebtClients.length > 0) {
+                alerts.push({
+                    icon: 'fa-money-bill-wave',
+                    text: `<strong>${highDebtClients.length} clients</strong> ont des créances > 50.000 DA`,
+                    color: 'var(--red)'
+                });
+            }
+
+            // Alerte 2: BL en attente depuis longtemps
+            const oldPending = _myOrders.filter(o => o.status === 'soumis' && (Date.now() - new Date(o.date_soumission || o.id)) > 86400000);
+            if (oldPending.length > 0) {
+                alerts.push({
+                    icon: 'fa-clock',
+                    text: `<strong>${oldPending.length} commandes</strong> en attente depuis > 24h`,
+                    color: '#f59e0b'
+                });
+            }
+
+            // Alerte 3: Stock camion faible
+            if (ME.truck_stock) {
+                const lowStock = Object.entries(ME.truck_stock).filter(([id, qty]) => qty < 10);
+                if (lowStock.length > 3) {
+                    alerts.push({
+                        icon: 'fa-truck-loading',
+                        text: `Stock camion critique sur plusieurs références`,
+                        color: 'var(--red)'
+                    });
+                }
+            }
+
+            // Alerte 4: Clients à relancer (Silent Clients)
+            const now = new Date();
+            const silent = _clients.filter(c => {
+                const last = c.last_visit_date || '2000-01-01';
+                const days = Math.floor((now - new Date(last)) / 86400000);
+                return days > (c.frequence_visite || 14);
+            });
+            if (silent.length > 0) {
+                alerts.push({
+                    icon: 'fa-user-clock',
+                    text: `<strong>${silent.length} clients</strong> à relancer d'urgence`,
+                    color: '#f59e0b'
+                });
+            }
+
+            if (alerts.length === 0) return;
+
+            container.innerHTML = alerts.map(a => `
+                <div class="alert-item" style="color:${a.color}; border-color:${a.color}40;">
+                    <i class="fas ${a.icon}"></i>
+                    <span style="font-size:0.8em;">${a.text}</span>
+                </div>
+            `).join('');
+        }
+
+        function showPage(name) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('page-'+name).classList.add('active');
+            document.getElementById('nav-'+name).classList.add('active');
+        }
+
+        function renderRecentOrders() {
+            const el = document.getElementById('recentOrders');
+            if (!el) return;
+            const list = _myOrders.slice(0, 5);
+            el.innerHTML = list.length ? list.map(o => cmdCard(o)).join('') : '<div style="text-align:center; padding:20px; color:var(--muted); font-size:0.8em;">Aucun BL récent</div>';
+        }
+
+        function renderClients() {
+            const q = (document.getElementById('clientSearch')?.value || '').toLowerCase();
+            const list = _clients.filter(c => !q || c.nom.toLowerCase().includes(q) || (c.commune||'').toLowerCase().includes(q));
+            const el = document.getElementById('clientsList');
+            if (!el) return;
+
+            if (list.length === 0) {
+                el.innerHTML = '<div style="text-align:center; padding:40px; color:var(--muted);">Aucun client trouvé</div>';
+                return;
+            }
+
+            el.innerHTML = list.map(c => _getClientCardHTML(c)).join('');
+        }
+
+        function startOrderFor(id) {
+            document.getElementById('orderClient').value = id;
+            onClientSelected();
+            showPage('order');
+        }
+
+        function onClientSelected() {
+            const id = document.getElementById('orderClient').value;
+            _selectedClient = _clients.find(x => String(x.id) === String(id));
+            if (_selectedClient) {
+                document.getElementById('orderClientName').textContent = _selectedClient.nom;
+                document.getElementById('orderClientVille').textContent = `${_selectedClient.commune || ''} (${_selectedClient.categorie || 'SupB'})`;
+                document.getElementById('orderClientAvatar').textContent = _selectedClient.nom[0];
+                document.getElementById('orderClientAvatar').style.background = 'var(--primary)';
+                
+                // Si on change de client et qu'on n'est pas en mode édition, on vide le panier
+                if (!_editOrderId) {
+                     _orderItems = {};
+                }
+                
+                renderProducts();
+                updateBasket();
+            }
+        }
+
+        function resetOrder() {
+            _selectedClient = null;
+            _orderItems = {};
+            _editOrderId = null; 
+            document.getElementById('orderClient').value = '';
+            document.getElementById('orderClientName').textContent = 'Sélectionner un client';
+            document.getElementById('orderClientVille').textContent = 'Choix requis pour commander';
+            document.getElementById('orderClientAvatar').textContent = '?';
+            document.getElementById('orderClientAvatar').style.background = 'var(--surface-low)';
+            document.getElementById('prodSearch').value = '';
+            
+            // UI Update
+            const btn = document.getElementById('btnSubmitFast');
+            if(btn) btn.innerHTML = 'Valider le panier <i class="fas fa-chevron-right" style="margin-left:8px; opacity:0.5;"></i>';
+            
+            renderProducts();
+            updateBasket();
+        }
+
+        function changeQty(key, delta) {
+            const current = _orderItems[key] || 0;
+            const newVal = Math.max(0, current + delta);
+            
+            if (newVal === 0) {
+                delete _orderItems[key];
+            } else {
+                _orderItems[key] = newVal;
+            }
+            
+            updateBasket();
+            const q = document.getElementById('prodSearch').value.trim();
+            if (q || document.getElementById('searchResultsList').classList.contains('active')) {
+                renderProducts(true);
+            }
+        }
+
+        function toggleMode(pId, mode) {
+            // On change le mode d'affichage/ajout pour ce produit
+            // On peut même migrer la quantité si déjà présent
+            const currentMode = _orderItems[`${pId}::pack`] ? 'pack' : (_orderItems[`${pId}::unit`] ? 'unit' : null);
+            if (currentMode && currentMode !== mode) {
+                const qty = _orderItems[`${pId}::${currentMode}`];
+                delete _orderItems[`${pId}::${currentMode}`];
+                _orderItems[`${pId}::${mode}`] = qty;
+            }
+            renderProducts(true);
+            updateBasket();
+        }
+
+        function toggleProductSelection(pId, type = 'pack') {
+            const key = `${pId}::${type}`;
+            if (_orderItems[key]) {
+                delete _orderItems[key];
+            } else {
+                _orderItems[key] = 1;
+            }
+            updateBasket();
+            renderProducts(true);
+        }
+
+        function updateBasket() {
+            const listEl = document.getElementById('persistentBasketList');
+            const totalEl = document.getElementById('basketTotalFast');
+            const countEl = document.getElementById('basketCountBadgeFast');
+            const btnSubmit = document.getElementById('btnSubmitFast');
+
+            let total = 0;
+            let count = 0;
+            const keys = Object.keys(_orderItems);
+
+            if (keys.length === 0) {
+                if (listEl) listEl.innerHTML = `
+                <div style="text-align:center; padding:60px 20px; color:var(--text-muted); font-size:0.85em; opacity:0.6;">
+                    <i class="fas fa-shopping-cart" style="font-size:3.5em; display:block; margin-bottom:15px; opacity:0.1;"></i>
+                    Votre panier est vide.<br>Sélectionnez des produits ci-dessus.
+                </div>`;
+                if (totalEl) totalEl.textContent = '0 DA';
+                if (countEl) countEl.textContent = '0 articles';
+                if (btnSubmit) btnSubmit.disabled = true;
+                return;
+            }
+
+            const html = keys.map(key => {
+                const [pid, type] = key.split('::');
+                const p = _products.find(x => String(x.id) === String(pid));
+                if (!p) return '';
+                
+                const unitPrice = OLGA_STORAGE.getPrice(p, _selectedClient?.categorie || 'SupB');
+                const packPrice = OLGA_STORAGE.getPackPrice(p, _selectedClient?.categorie || 'SupB');
+                const price = type === 'pack' ? packPrice : unitPrice;
+                const qty = _orderItems[key];
+                const subtotal = qty * price;
+                
+                total += subtotal;
+                count += qty;
+
+                const mult = OLGA_STORAGE.getPackMultiplier(p.pack);
+                const packText = type === 'pack' ? `PACK (${mult}U)` : 'UNITÉ';
+
+                return `
+                <div class="basket-item" style="padding:16px 20px; border-bottom:1px solid rgba(255,255,255,0.03); display:flex; align-items:center; gap:12px;">
+                    <div class="basket-item-info" style="flex:1;">
+                        <div class="basket-item-name" style="font-size:0.9em; font-weight:800; color:white;">${p.nom}</div>
+                        <div class="basket-item-sub" style="font-size:0.75em; color:var(--primary); font-weight:600; margin:2px 0;">
+                            ${p.parfum || '—'} • ${packText}
+                        </div>
+                        <div style="font-size:0.8em; font-weight:700; color:var(--text-muted);">${price.toLocaleString()} DA</div>
+                    </div>
+                    
+                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+                        <div style="font-weight:900; font-size:1em; color:var(--primary);">${subtotal.toLocaleString()} <span style="font-size:0.6em; opacity:0.6;">DA</span></div>
+                        <div class="basket-qty-ctrl" style="background:var(--surface-highest); border-radius:10px; padding:4px; border:1px solid rgba(255, 255, 255, 0.05); display:flex; align-items:center; gap:8px;">
+                            <button class="btn" style="width:28px; height:28px; border-radius:6px; background:var(--surface-low); color:white; border:none;" onclick="changeQty('${key}', -1)"><i class="fas fa-minus" style="font-size:0.75em;"></i></button>
+                            <span style="font-weight:900; font-size:1em; min-width:60px; text-align:center; color:white;">
+                                ${qty} <small style="font-size:0.6em; opacity:0.6;">${type === 'pack' ? 'PACKS' : 'UNITÉS'}</small>
+                            </span>
+                            <button class="btn" style="width:28px; height:28px; border-radius:6px; background:var(--surface-low); color:white; border:none;" onclick="changeQty('${key}', 1)"><i class="fas fa-plus" style="font-size:0.75em;"></i></button>
+                        </div>
+                    </div>
+                    <button class="btn" style="color:var(--red); font-size:0.8em; opacity:0.4; padding:8px;" onclick="removeItemFromBasket('${key}')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>`;
+            }).join('');
+
+            if (listEl) listEl.innerHTML = html;
+            if (countEl) countEl.textContent = `${count} article${count > 1 ? 's' : ''}`;
+            if (totalEl) totalEl.textContent = total.toLocaleString() + ' DA';
+            if (btnSubmit) btnSubmit.disabled = false;
+        }
+
+        function removeItemFromBasket(key) {
+            delete _orderItems[key];
+            updateBasket();
+            renderProducts();
+        }
+
+        function getPrice(p) { return OLGA_STORAGE.getPackPrice(p, _selectedClient?.categorie || 'SupB'); }
+
+        function renderProducts(forceAll = false) {
+            const listEl = document.getElementById('searchResultsList');
+            const q = document.getElementById('prodSearch').value.toLowerCase().trim();
+            
+            if (!q && !forceAll) {
+                listEl.classList.remove('active');
+                return;
+            }
+
+            let filtered = _products;
+            if (q) {
+                filtered = _products.filter(p => 
+                    p.nom.toLowerCase().includes(q) || 
+                    (p.parfum && p.parfum.toLowerCase().includes(q))
+                );
+            }
+
+            if (filtered.length === 0) {
+                listEl.classList.add('active');
+                listEl.innerHTML = '<div style="padding:40px; text-align:center; font-size:0.8em; color:var(--text-muted); opacity:0.5;"><i class="fas fa-search" style="font-size:2em; display:block; margin-bottom:10px;"></i>Aucun produit trouvé</div>';
+                return;
+            }
+
+            listEl.classList.add('active');
+            filtered.sort((a,b) => a.nom.localeCompare(b.nom) || (a.parfum||'').localeCompare(b.parfum||''));
+
+            const cat = _selectedClient?.categorie || 'SupB';
+
+            listEl.innerHTML = filtered.map(p => {
+                const uPrice = OLGA_STORAGE.getPrice(p, cat);
+                const pPrice = OLGA_STORAGE.getPackPrice(p, cat);
+                const mult = OLGA_STORAGE.getPackMultiplier(p.pack);
+                
+                // On privilégie l'affichage PACK par défaut ou ce qui est déjà dans le panier
+                const packKey = `${p.id}::pack`;
+                const unitKey = `${p.id}::unit`;
+                
+                const packQty = _orderItems[packKey] || 0;
+                const unitQty = _orderItems[unitKey] || 0;
+                
+                const isSelected = packQty > 0 || unitQty > 0;
+                const displayQty = packQty > 0 ? packQty : (unitQty > 0 ? unitQty : 0);
+                const displayType = packQty > 0 ? 'pack' : (unitQty > 0 ? 'unit' : 'pack');
+                const displayPrice = displayType === 'pack' ? pPrice : uPrice;
+                const activeKey = `${p.id}::${displayType}`;
+
+                return `
+                <div class="search-item ${isSelected ? 'selected' : ''}" onclick="toggleProductSelection('${p.id}', '${displayType}')">
+                    <div class="search-item-aside">
+                        <div class="order-checkbox" style="width:20px; height:20px;">
+                            <i class="fas fa-check" style="font-size:0.6em;"></i>
+                        </div>
+                        <div class="mode-toggle" onclick="event.stopPropagation()">
+                            <button class="mode-btn ${displayType === 'pack' ? 'active' : ''}" onclick="toggleMode('${p.id}', 'pack')">P</button>
+                            <button class="mode-btn ${displayType === 'unit' ? 'active' : ''}" onclick="toggleMode('${p.id}', 'unit')">U</button>
+                        </div>
+                    </div>
+
+                    <div class="search-item-info">
+                        <div class="search-item-name">${p.nom}</div>
+                        <div class="search-item-meta">
+                            <span style="color:var(--primary); font-weight:800;">${displayPrice.toLocaleString()} DA</span>
+                            <span style="opacity:0.3;">|</span>
+                            <span>${p.parfum || '—'}</span>
+                        </div>
+                        <div class="stock-badge ${p.stock_units_total <= (p.stock_min_units || 0) ? 'low' : ''}">
+                            <i class="fas fa-boxes"></i> ${OLGA_STORAGE.formatStock(p)}
+                        </div>
+                    </div>
+
+                    <div class="search-item-ctrl">
+                        <div class="inline-qty-ctrl" onclick="event.stopPropagation()" style="${isSelected ? 'opacity:1; pointer-events:auto; border-color:rgba(59,130,246,0.2)' : ''}">
+                            <button class="qty-btn" onclick="changeQty('${activeKey}', -1)"><i class="fas fa-minus"></i></button>
+                            <input type="number" class="qty-input" value="${displayQty}" readonly style="width:28px; font-size:0.85em;">
+                            <button class="qty-btn" onclick="changeQty('${activeKey}', 1)"><i class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function toggleQuickSelect() { /* Deprecated */ }
+        function confirmBatchAdd() { /* Deprecated */ }
+        function addToBasket() { /* Deprecated */ }
+
+        // --- Listeners de recherche ---
+        document.getElementById('prodSearch').addEventListener('focus', () => renderProducts(true));
+        document.addEventListener('click', (e) => {
+            // Ne ferme que si le clic est en dehors de la zone de recherche ET que le clic n'est pas sur un élément détaché (lié au re-render)
+            const isInsideSearch = e.target.closest('.search-area');
+            const isDetached = !e.target.isConnected;
+            
+            if (!isInsideSearch && !isDetached) {
+                const results = document.getElementById('searchResultsList');
+                if (results) results.classList.remove('active');
+            }
+        });
+
+
+        async function submitOrder() {
+            if (!_selectedClient) return;
+            const keys = Object.keys(_orderItems);
+            if (!keys.length) return;
+
+            const isEdit = !!_editOrderId;
+            const oldOrder = isEdit ? _myOrders.find(o => String(o.id) === String(_editOrderId)) : null;
+
+            let total = 0;
+            const items = keys.map(key => {
+                const [pid, type] = key.split('::');
+                const p = _products.find(x => String(x.id) === String(pid));
+                const unitPrice = OLGA_STORAGE.getPrice(p, _selectedClient.categorie);
+                const packPrice = OLGA_STORAGE.getPackPrice(p, _selectedClient.categorie);
+                const price = type === 'pack' ? packPrice : unitPrice;
+                const qty = _orderItems[key];
+                const line = qty * price;
+                
+                total += line;
+                return {
+                    produit_id: p.id,
+                    produit_nom: p.nom,
+                    qty: qty,
+                    prix_unitaire: price,
+                    total: line,
+                    pack: type === 'pack' ? p.pack : 'Unité'
+                };
+            });
+
+            // Logique de Stock Camion (Van-Selling)
+            // 1. Réintégration de l'ancien stock si édition d'une vente camion
+            if (isEdit && oldOrder && oldOrder.type === 'VAN-SELLING') {
+                oldOrder.items.forEach(it => {
+                    const mult = OLGA_STORAGE.getPackMultiplier(it.pack);
+                    if (ME.truck_stock && ME.truck_stock[it.produit_id] !== undefined) {
+                        ME.truck_stock[it.produit_id] += (it.qty * mult);
+                    }
+                });
+            }
+
+            // 2. Vérification nouveau stock
+            let isVanSelling = true;
+            items.forEach(it => {
+                const stock = (ME.truck_stock || {})[it.produit_id] || 0;
+                if (stock < it.qty * OLGA_STORAGE.getPackMultiplier(it.pack)) isVanSelling = false;
+            });
+
+            const order = {
+                id: isEdit ? oldOrder.id : Date.now(),
+                date: isEdit ? oldOrder.date : new Date().toISOString().split('T')[0],
+                bl: isEdit ? oldOrder.bl : null,
+                client: _selectedClient.nom,
+                client_id: _selectedClient.id,
+                items: items,
+                total: total,
+                itemsSummary: items.map(it => `${it.qty} ${it.pack === 'Unité' ? 'U' : 'P'}`).join(', '),
+                status: isVanSelling ? 'livre' : 'soumis',
+                deliveryStatus: isVanSelling ? 'Livré' : 'En attente',
+                commercial_id: ME.id,
+                commercial_nom: (ME.prenom + ' ' + ME.nom).trim() || 'Agent Terrain',
+                type: isVanSelling ? 'VAN-SELLING' : 'COMMANDE',
+                commune: _selectedClient.commune || '—',
+                wilaya: _selectedClient.wilaya || '—',
+                date_soumission: isEdit ? (oldOrder.date_soumission || oldOrder.date) : new Date().toISOString(),
+                edit_history: isEdit ? [ ...(oldOrder.edit_history || []), { date: new Date().toISOString(), user: ME.id }] : undefined
+            };
+
+            if (isVanSelling) {
+                items.forEach(it => {
+                    const req = it.qty * OLGA_STORAGE.getPackMultiplier(it.pack);
+                    if (!ME.truck_stock) ME.truck_stock = {};
+                    ME.truck_stock[it.produit_id] = (ME.truck_stock[it.produit_id] || 0) - req;
+                });
+                await OLGA_STORAGE.saveUser(ME);
+                sessionStorage.setItem('olga_user', JSON.stringify(ME));
+            }
+
+            const res = await OLGA_STORAGE.saveOrder(order);
+            if (res.success) {
+                closeModal('modalBasket');
+                resetOrder();
+                _syncFromStorage();
+                OLGA_STORAGE.forceSync(ME.id); 
+                showToast(isEdit ? "Modification enregistrée ✓" : (isVanSelling ? "Vente camion réussie ✓" : "Commande transmise ✅"));
+                showPage('home');
+            } else {
+                alert("Erreur: " + res.error);
+            }
+        }
+
+        function editOrder(id) {
+            const o = _myOrders.find(x => String(x.id) === String(id));
+            if (!o) return;
+            
+            if (o.status === 'livre' || o.deliveryStatus === 'Livré') {
+                return alert("Impossible de modifier une commande déjà livrée.");
+            }
+
+            _editOrderId = id;
+            
+            // 1. Sélectionner le client
+            document.getElementById('orderClient').value = o.client_id;
+            _selectedClient = _clients.find(x => String(x.id) === String(o.client_id));
+            
+            if (!_selectedClient) {
+                 // Fallback si client pas dans la liste filtrée
+                 _selectedClient = { id: o.client_id, nom: o.client, commune: o.commune, categorie: 'SupB' };
+            }
+            
+            // 2. Mettre à jour l'UI client
+            document.getElementById('orderClientName').textContent = _selectedClient.nom;
+            document.getElementById('orderClientVille').textContent = `${_selectedClient.commune || ''} (Modification)`;
+            document.getElementById('orderClientAvatar').textContent = _selectedClient.nom[0];
+            document.getElementById('orderClientAvatar').style.background = 'var(--accent)';
+
+            // 3. Charger les produits
+            _orderItems = {};
+            (o.items || []).forEach(it => {
+                const p = _products.find(x => String(x.id) === String(it.produit_id));
+                const type = (it.pack === 'Unité' || (p && it.qty % OLGA_STORAGE.getPackMultiplier(p.pack) !== 0)) ? 'unit' : 'pack';
+                
+                // Si c'est un pack dans l'ordre, on le garde en pack
+                const finalType = (it.pack !== 'Unité') ? 'pack' : 'unit';
+                const key = `${it.produit_id}::${finalType}`;
+                _orderItems[key] = it.qty;
+            });
+
+            // 4. Update UI
+            document.getElementById('btnSubmitFast').innerHTML = 'Enregistrer les modifications <i class="fas fa-save" style="margin-left:8px; opacity:0.5;"></i>';
+            
+            renderProducts();
+            updateBasket();
+            showPage('order');
+            
+            closeModal('modalOrderDetails');
+        }
+
+        function viewOrderDetails(id) {
+            const o = _myOrders.find(x => String(x.id) === String(id));
+            if (!o) return;
+
+            const printDate = new Date(o.date).toLocaleDateString('fr-FR');
+            document.getElementById('od-title').textContent = "Commande #" + (o.bl || String(o.id).slice(-4));
+            document.getElementById('od-client').textContent = o.client;
+            document.getElementById('od-meta').textContent = `${printDate} • ${o.status.toUpperCase()}`;
+            document.getElementById('od-total').textContent = (o.total || 0).toLocaleString() + ' DA';
+
+            const listEl = document.getElementById('od-list');
+            if (o.items && o.items.length) {
+                listEl.innerHTML = o.items.map(it => `
+                <div style="padding:12px 20px; border-bottom:1px solid rgba(255,255,255,0.03); display:flex; justify-content:space-between; align-items:center;">
+                    <div style="flex:1;">
+                        <div style="font-size:0.85em; font-weight:700; color:white;">${it.produit_nom}</div>
+                        <div style="font-size:0.75em; color:var(--text-muted); margin-top:2px;">
+                            ${(() => {
+                                const isUnit = it.pack === 'Unité' || it.pack.toLowerCase().includes('unité');
+                                return `<strong>${it.qty}</strong> ${isUnit ? 'unité(s)' : 'pack(s)'} • ${it.pack}`;
+                            })()}
+                            ${(it.prix_unitaire || it.price) ? ` • ${(it.prix_unitaire || it.price).toLocaleString()} DA/${(it.pack === 'Unité' || it.pack.toLowerCase().includes('unité')) ? 'u' : 'pk'}` : ''}
+                        </div>
+                    </div>
+                    <div style="text-align:right; font-weight:900; font-size:0.9em; color:var(--primary);">
+                        ${(it.total || 0).toLocaleString()} <span style="font-size:0.7em; opacity:0.6;">DA</span>
+                    </div>
+                </div>`).join('');
+            } else {
+                listEl.innerHTML = '<div style="padding:40px; text-align:center; color:var(--text-muted); font-size:0.8em;">Aucun article trouvé</div>';
+            }
+
+            document.getElementById('modalOrderDetails').classList.add('open');
+        }
+
+        function cmdCard(o) {
+            let sLabel = 'Statut Inconnu';
+            let sColor = 'var(--text-muted)';
+            
+            // Détection du Bon de Chargement (Support bc_id et bcId v6.0)
+            const bcId = o.bc_id || o.bcId;
+            
+            if (o.status === 'soumis') {
+                sLabel = '⏳ En attente validation';
+                sColor = 'var(--orange)';
+            } else if (o.status === 'valide') {
+                if (bcId) {
+                    sLabel = '📦 CHARGÉ';
+                    sColor = 'var(--accent)';
+                } else {
+                    sLabel = '⌛ Validé : En attente chargement';
+                    sColor = 'var(--text-muted)';
+                }
+            } else if (o.status === 'livre') {
+                sLabel = '✅ Livré';
+                sColor = 'var(--primary)';
+            } else if (o.status === 'refuse') {
+                sLabel = '❌ Annulée';
+                sColor = 'var(--red)';
+            }
+
+            const d = new Date(o.date || o.id);
+            const fd = d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
+            
+            return `
+            <div class="item-card glass" style="padding:16px; margin-bottom:12px; border-left:4px solid ${sColor}; border-radius:18px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                    <div style="flex:1;">
+                        <div style="font-weight:900; font-size:1.05em; color:white;">${o.client_nom || o.client || 'Client Inconnu'}</div>
+                        <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+                            <span style="font-size:0.7em; color:var(--text-muted); background:rgba(255,255,255,0.05); padding:2px 6px; border-radius:4px;">
+                                <i class="fas fa-calendar-alt" style="margin-right:3px; opacity:0.6;"></i>${fd}
+                            </span>
+                            <span style="font-size:0.75em; font-weight:700; color:var(--text); background:rgba(255,255,255,0.08); padding:2px 8px; border-radius:4px;">
+                                <i class="fas fa-barcode" style="margin-right:4px; opacity:0.6;"></i>${o.bl || 'PROV-'+String(o.id).slice(-6)}
+                            </span>
+                        </div>
+                    </div>
+                    <div style="font-size:0.65em; font-weight:800; background:${sColor}20; color:${sColor}; padding:5px 12px; border-radius:20px; text-transform:uppercase; border:1px solid ${sColor}40; letter-spacing:0.5px;">
+                        ${sLabel}
+                    </div>
+                </div>
+
+                ${bcId ? `
+                <div style="margin-bottom:12px; font-size:0.75em; color:var(--accent); display:flex; align-items:center; gap:6px; background:rgba(133, 173, 255, 0.05); padding:8px 12px; border-radius:10px; border:1px dashed rgba(133, 173, 255, 0.2);">
+                    <i class="fas fa-truck-loading"></i>
+                    <span>Chargé sur <strong>${bcId}</strong></span>
+                </div>
+                ` : ''}
+                
+                <div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid rgba(255,255,255,0.05);">
+                    <div>
+                        <div style="font-size:0.6em; color:var(--text-muted); text-transform:uppercase;">Montant BL</div>
+                        <div style="font-weight:900; color:white; font-size:1.1em;">${(o.total || 0).toLocaleString()} DA</div>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn btn-surface" style="font-size:0.75em; padding:8px 14px; border-radius:10px;" onclick="viewOrderDetails('${o.id}')"><i class="fas fa-eye"></i> Détails</button>
+                        ${(o.status !== 'livre' && o.deliveryStatus !== 'Livré') ? `<button class="btn btn-surface" style="font-size:0.75em; padding:8px 14px; border-radius:10px; color:var(--accent);" onclick="editOrder('${o.id}')"><i class="fas fa-edit"></i> Modifier</button>` : ''}
+                        ${o.status === 'valide' && bcId && !o.signature ? `<button class="btn btn-primary" style="font-size:0.7em; padding:8px 14px; border-radius:10px; background:var(--primary); color:white; font-weight:800;" onclick="openSignatureModal('${o.id}')"><i class="fas fa-pen-nib"></i> Signer & Livrer</button>` : ''}
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function renderFinance() {
+            const el = document.getElementById('myFinanceList');
+            if (!el) return;
+            
+            const selMonth = document.getElementById('dashboardMonth').value;
+            
+            // On calcule les stats par client
+            const stats = _clients.map(c => {
+                const cOrders = _myOrders.filter(o => String(o.client_id) === String(c.id));
+                const monthOrders = cOrders.filter(o => !selMonth || _isDateInMonth(o.date, selMonth));
+                
+                const allPayments = OLGA_STORAGE.getPayments() || [];
+                const cPayments = allPayments.filter(p => String(p.client_id) === String(c.id));
+                const monthPayments = cPayments.filter(p => !selMonth || _isDateInMonth(p.date, selMonth));
+
+                const totalInvoiced = cOrders.reduce((s, o) => s + (o.total || 0), 0);
+                const totalPaid = cPayments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
+                
+                const monthInvoiced = monthOrders.reduce((s, o) => s + (o.total || 0), 0);
+                const monthPaid = monthPayments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
+                const monthBLCount = monthOrders.length;
+                
+                return {
+                    ...c,
+                    monthBLCount,
+                    monthInvoiced,
+                    monthPaid,
+                    creances: totalInvoiced - totalPaid
+                };
+            }).filter(s => s.monthInvoiced > 0 || s.monthPaid > 0 || s.creances > 0);
+
+            if (stats.length === 0) {
+                el.innerHTML = '<div style="text-align:center; padding:40px; color:var(--muted);">Aucune donnée ce mois-ci</div>';
+                return;
+            }
+
+            el.innerHTML = stats.sort((a,b) => b.creances - a.creances).map(s => `
+            <div class="item-card glass" style="padding:16px; margin-bottom:12px; border-radius:18px;">
+                <div style="font-weight:900; font-size:1.1em; color:white; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:8px;">${s.nom}</div>
+                
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                    <div>
+                        <div style="font-size:0.6em; color:var(--text-muted); text-transform:uppercase;">Volume Mensuel</div>
+                        <div style="font-weight:800; color:white; font-size:1em;">${s.monthBLCount} BL</div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.6em; color:var(--text-muted); text-transform:uppercase;">Ventes Mois</div>
+                        <div style="font-weight:800; color:white; font-size:1em;">${s.monthInvoiced.toLocaleString()} DA</div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.6em; color:var(--text-muted); text-transform:uppercase;">Encais. Mois</div>
+                        <div style="font-weight:800; color:var(--green); font-size:1em;">${s.monthPaid.toLocaleString()} DA</div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.6em; color:var(--text-muted); text-transform:uppercase;">Dette Globale</div>
+                        <div style="font-weight:800; color:var(--red); font-size:1em;">${s.creances.toLocaleString()} DA</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top:16px;">
+                    <button class="btn btn-surface" style="width:100%; font-size:0.75em; padding:12px;" onclick="openPaymentModal(${s.id}, '${s.nom.replace(/'/g, "\\'")}', ${s.creances})">💰 Encaisser le client</button>
+                </div>
+            </div>`).join('');
+        }
+
+        function renderMyOrders() {
+            const el = document.getElementById('myOrdersList');
+            if (!el) return;
+            const selMonth = document.getElementById('dashboardMonth').value;
+            const list = _myOrders.filter(o => !selMonth || _isDateInMonth(o.date, selMonth));
+            el.innerHTML = list.length ? list.map(o => cmdCard(o)).join('') : '<div style="text-align:center; padding:40px; color:var(--muted);">Aucun BL ce mois-ci</div>';
+        }
+
+        function renderProspects() {
+            const el = document.getElementById('prospectsList');
+            if (!el) return;
+            el.innerHTML = _prospects.map(p => `
+                <div class="prospect-card">
+                    <div class="prospect-dot"></div>
+                    <div class="prospect-info">
+                        <div class="prospect-name">${p.nom}</div>
+                        <div class="prospect-sub">${p.commune || '—'} | Visite: ${p.last_visit_date || 'Jamais'}</div>
+                    </div>
+                    <button class="btn btn-primary" style="padding:8px 12px;" onclick="startOrderFor(${p.id})">+</button>
+                </div>`).join('');
+        }
+
+        function closeModal(id) { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open')); }
+        function openAddClientModal() {
+            const wSel = document.getElementById('newCWilaya');
+            if (typeof OLGA_GEO_DATA !== 'undefined' && wSel.options.length <= 1) {
+               wSel.innerHTML = '<option value="">— Choisir —</option>' + OLGA_GEO_DATA.wilayas.map(w => `<option value="${w.code}">${w.code} - ${w.name}</option>`).join('');
+            }
+            document.getElementById('modalAddClient').classList.add('open');
+        }
+        function updateNewCommuneList() {
+            const wCode = document.getElementById('newCWilaya').value;
+            const cSel = document.getElementById('newCCommune');
+            cSel.innerHTML = '<option value="">— Choisir —</option>';
+            if (wCode && OLGA_GEO_DATA.communes[wCode]) {
+                OLGA_GEO_DATA.communes[wCode].sort().forEach(c => cSel.add(new Option(c, c)));
+            }
+        }
+        function closeAddClientModal() { closeModal('modalAddClient'); }
+
+        async function saveNewClientFromApp() {
+            const nom = document.getElementById('newCNom').value;
+            if (!nom) return alert("Nom requis");
+            const wSel = document.getElementById('newCWilaya');
+            const wName = wSel.options[wSel.selectedIndex].text;
+            const c = {
+                id: Date.now(),
+                nom: nom,
+                type: document.getElementById('newCType').value,
+                categorie: document.getElementById('newCCat').value,
+                wilaya: wName,
+                commune: document.getElementById('newCCommune').value,
+                mobile: document.getElementById('newCMobile').value,
+                potentiel: document.getElementById('newCPot').value,
+                acheteur: document.getElementById('newCAcheteur').value,
+                promesse_ca: document.getElementById('newCPromesse').value,
+                notes: document.getElementById('newCNotes').value,
+                commercial_id: ME.id,
+                commercial_nom: (ME.prenom + ' ' + ME.nom).trim(),
+                status_validation: 'en_attente',
+                date_creation: new Date().toISOString()
+            };
+            const r = await OLGA_STORAGE.saveClient(c);
+            if (r.success) { 
+                closeAddClientModal(); _syncFromStorage(); showToast("Dossier transmis ✓"); 
+                // Reset form
+                document.getElementById('newCNom').value = '';
+            }
+            else alert("Erreur: "+r.error);
+        }
+
+        function simulatePhotoCapture() {
+            document.getElementById('photoStatus').textContent = "📸 Photo capturée ✓";
+            document.getElementById('photoPlaceholder').style.borderColor = "var(--success)";
+        }
+
+        function showDebugInfo() {
+            const allC = OLGA_STORAGE.getClients() || [];
+            const objectives = OLGA_STORAGE.getObjectifs(ME.id);
+            const rawClientIds = allC.map(c => c.commercial_id || c.commercialId).slice(0, 5);
+            
+            alert(`
+                SESSION ID: ${ME.id}
+                NOM: ${ME.nom}
+                ROLE: ${ME.role}
+                SECTEURS: ${ME.secteur}
+                
+                DONNÉES CLOUD :
+                - Total Clients (Cloud): ${allC.length}
+                - Clients Filtrés (Terrain): ${_clients.length}
+                - IDs Commerciaux (Exemple Cloud): ${rawClientIds.join(', ')}
+                
+                SYNC STATUS: ${OLGA_STORAGE.getSyncStatus ? OLGA_STORAGE.getSyncStatus() : 'v5.0 Ready'}
+            `);
+            console.log("[Debug] Data Explorer:", { ME, allC, filtered: _clients, objectives });
+        }
+    </script>
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-msg">Données et Profil à jour ✓</span>
+    </div>
+</body>
+</html>

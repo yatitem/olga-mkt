@@ -1,0 +1,1859 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Global OLGA - 2026</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="../01_Core/olga_theme.css">
+    <script src="../01_Core/olga_config.js"></script>
+    <script src="../01_Core/olga_auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            OLGA_AUTH.requireRole('admin');
+        });
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Spécifique au Dashboard - Code Couleurs Univers */
+        .tab-link[onclick*="Linge"].active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+
+        .tab-link[onclick*="Cuisine"].active {
+            color: #f97316;
+            border-bottom-color: #f97316;
+        }
+
+        .tab-link[onclick*="Maison"].active {
+            color: #10b981;
+            border-bottom-color: #10b981;
+        }
+
+        .tab-link[onclick*="Hygiene"].active {
+            color: #a855f7;
+            border-bottom-color: #a855f7;
+        }
+
+        #Linge h2,
+        #Linge .card h2 {
+            color: #3b82f6;
+        }
+
+        #Cuisine h2,
+        #Cuisine .card h2 {
+            color: #f97316;
+        }
+
+        #Maison h2,
+        #Maison .card h2 {
+            color: #10b981;
+        }
+
+        #Hygiene h2,
+        #Hygiene .card h2 {
+            color: #a855f7;
+        }
+
+        #Linge th {
+            background-color: #eff6ff;
+            color: #1e3a8a;
+        }
+
+        #Cuisine th {
+            background-color: #fff7ed;
+            color: #9a3412;
+        }
+
+        #Maison th {
+            background-color: #ecfdf5;
+            color: #064e3b;
+        }
+
+        #Hygiene th {
+            background-color: #f3e8ff;
+            color: #6b21a8;
+        }
+
+        .packshot-img {
+            height: 60px;
+            vertical-align: middle;
+            margin-right: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>📊 Dashboard Stratégique OLGA 2026 - Les 4 Univers</h1>
+
+        <div class="tabs">
+            <button class="tab-link active" onclick="openTab(event, 'Catalogue')">📦 CATALOGUE OLGA</button>
+            <button class="tab-link" onclick="openTab(event, 'Linge')">🧺 UNIVERS LINGE</button>
+            <button class="tab-link" onclick="openTab(event, 'Cuisine')">🍋 UNIVERS CUISINE</button>
+            <button class="tab-link" onclick="openTab(event, 'Maison')">✨ UNIVERS MAISON</button>
+            <button class="tab-link" onclick="openTab(event, 'Hygiene')">🤲 UNIVERS HYGIÈNE</button>
+            <button class="tab-link" onclick="openTab(event, 'Veille')">🛡️ VEILLE PRIX</button>
+
+            <button class="tab-link" style="color:#7f8c8d;" onclick="openTab(event, 'Guide')">📘 GUIDE
+                D'UTILISATION</button>
+        </div>
+
+        <!-- ================= ONGLET VEILLE ================= -->
+        <div id="Veille" class="tab-content">
+            <div class="header-section" style="background: linear-gradient(135deg, #7f8c8d, #2c3e50);">
+                <h1>🛡️ Veille Concurrentielle & Marges Distributeurs</h1>
+                <p>Consolidation des données concurrentes avec estimation des marges de distribution (Expertise).</p>
+            </div>
+            <div class="card">
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead>
+                            <tr style="background-color: #2c3e50; color: #ecf0f1; border-bottom: 3px solid #34495e;">
+                                <th>Marque</th>
+                                <th>Format</th>
+                                <th>Prix Usine (Est.)</th>
+                                <th>Prix Gros (Est.)</th>
+                                <th>Prix Détail (Est.)</th>
+                                <th>Prix Public (Relevé)</th>
+                                <th>Marge Détail (Est.)</th>
+                                <th>Marge Gros (Est.)</th>
+                                <th>Source</th>
+                                <th>Segment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background-color: #d6eaf8;">
+                                <td colspan="10" style="padding:10px; font-weight:bold; color:#2980b9;">📏 FORMAT 1
+                                    LITRE</td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>BINGO</strong></td>
+                                <td>1 Litre</td>
+                                <td style="color:#7f8c8d;">233.18</td>
+                                <td style="color:#2980b9;">261.16</td>
+                                <td>282.05</td>
+                                <td style="font-weight:bold; font-size:1.1em;">330.0</td>
+                                <td style="color:orange;">+47.95 <small>(14%)</small></td>
+                                <td style="color:#555;">+20.89</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Eco
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>LE CHAT</strong></td>
+                                <td>1 Litre</td>
+                                <td style="color:#7f8c8d;">268.51</td>
+                                <td style="color:#2980b9;">300.73</td>
+                                <td>324.79</td>
+                                <td style="font-weight:bold; font-size:1.1em;">380.0</td>
+                                <td style="color:orange;">+55.21 <small>(14%)</small></td>
+                                <td style="color:#555;">+24.06</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Eco
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr style="background-color: #d6eaf8;">
+                                <td colspan="10" style="padding:10px; font-weight:bold; color:#2980b9;">📏 FORMAT 2.5
+                                    LITRES</td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>TEST</strong></td>
+                                <td>2.5 Litres</td>
+                                <td style="color:#7f8c8d;">395.69</td>
+                                <td style="color:#2980b9;">443.18</td>
+                                <td>478.63</td>
+                                <td style="font-weight:bold; font-size:1.1em;">560.0</td>
+                                <td style="color:orange;">+81.37 <small>(14%)</small></td>
+                                <td style="color:#555;">+35.45</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Mid
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>AIGLE</strong></td>
+                                <td>2.5 Litres</td>
+                                <td style="color:#7f8c8d;">487.55</td>
+                                <td style="color:#2980b9;">546.06</td>
+                                <td>589.74</td>
+                                <td style="font-weight:bold; font-size:1.1em;">690.0</td>
+                                <td style="color:orange;">+100.26 <small>(14%)</small></td>
+                                <td style="color:#555;">+43.68</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Mid
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>BINGO</strong></td>
+                                <td>2.5 Litres</td>
+                                <td style="color:#7f8c8d;">558.21</td>
+                                <td style="color:#2980b9;">625.2</td>
+                                <td>675.21</td>
+                                <td style="font-weight:bold; font-size:1.1em;">790.0</td>
+                                <td style="color:orange;">+114.79 <small>(14%)</small></td>
+                                <td style="color:#555;">+50.01</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Mid
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>Isis</strong></td>
+                                <td>2.5 Litres</td>
+                                <td style="color:#7f8c8d;">385.1</td>
+                                <td style="color:#2980b9;">431.31</td>
+                                <td>465.81</td>
+                                <td style="font-weight:bold; font-size:1.1em;">545.0</td>
+                                <td style="color:orange;">+79.19 <small>(14%)</small></td>
+                                <td style="color:#555;">+34.5</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Mid
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>LE CHAT</strong></td>
+                                <td>2.5 Litres</td>
+                                <td style="color:#7f8c8d;">558.21</td>
+                                <td style="color:#2980b9;">625.2</td>
+                                <td>675.21</td>
+                                <td style="font-weight:bold; font-size:1.1em;">790.0</td>
+                                <td style="color:orange;">+114.79 <small>(14%)</small></td>
+                                <td style="color:#555;">+50.01</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Mid
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr style="background-color: #d6eaf8;">
+                                <td colspan="10" style="padding:10px; font-weight:bold; color:#2980b9;">📏 FORMAT 3
+                                    LITRES</td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>VAVO</strong></td>
+                                <td>3 Litres</td>
+                                <td style="color:#7f8c8d;">310.9</td>
+                                <td style="color:#2980b9;">348.21</td>
+                                <td>376.07</td>
+                                <td style="font-weight:bold; font-size:1.1em;">440.0</td>
+                                <td style="color:orange;">+63.93 <small>(14%)</small></td>
+                                <td style="color:#555;">+27.86</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Eco
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>LIFE</strong></td>
+                                <td>3 Litres</td>
+                                <td style="color:#7f8c8d;">342.7</td>
+                                <td style="color:#2980b9;">383.82</td>
+                                <td>414.53</td>
+                                <td style="font-weight:bold; font-size:1.1em;">485.0</td>
+                                <td style="color:orange;">+70.47 <small>(14%)</small></td>
+                                <td style="color:#555;">+30.71</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Eco
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>Lina clean</strong></td>
+                                <td>3 Litres</td>
+                                <td style="color:#7f8c8d;">310.9</td>
+                                <td style="color:#2980b9;">348.21</td>
+                                <td>376.07</td>
+                                <td style="font-weight:bold; font-size:1.1em;">440.0</td>
+                                <td style="color:orange;">+63.93 <small>(14%)</small></td>
+                                <td style="color:#555;">+27.86</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Eco
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>TOPSIL</strong></td>
+                                <td>3 Litres</td>
+                                <td style="color:#7f8c8d;">307.37</td>
+                                <td style="color:#2980b9;">344.25</td>
+                                <td>371.79</td>
+                                <td style="font-weight:bold; font-size:1.1em;">435.0</td>
+                                <td style="color:orange;">+63.21 <small>(14%)</small></td>
+                                <td style="color:#555;">+27.54</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Eco
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>PRO VIT</strong></td>
+                                <td>3 Litres</td>
+                                <td style="color:#7f8c8d;">307.37</td>
+                                <td style="color:#2980b9;">344.25</td>
+                                <td>371.79</td>
+                                <td style="font-weight:bold; font-size:1.1em;">435.0</td>
+                                <td style="color:orange;">+63.21 <small>(14%)</small></td>
+                                <td style="color:#555;">+27.54</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Eco
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>EL BAHDJA</strong></td>
+                                <td>3 Litres</td>
+                                <td style="color:#7f8c8d;">381.56</td>
+                                <td style="color:#2980b9;">427.35</td>
+                                <td>461.54</td>
+                                <td style="font-weight:bold; font-size:1.1em;">540.0</td>
+                                <td style="color:orange;">+78.46 <small>(14%)</small></td>
+                                <td style="color:#555;">+34.19</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Mid
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>DAKO</strong></td>
+                                <td>3 Litres</td>
+                                <td style="color:#7f8c8d;">402.76</td>
+                                <td style="color:#2980b9;">451.09</td>
+                                <td>487.18</td>
+                                <td style="font-weight:bold; font-size:1.1em;">570.0</td>
+                                <td style="color:orange;">+82.82 <small>(14%)</small></td>
+                                <td style="color:#555;">+36.09</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Mid
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>OURS BLANC</strong></td>
+                                <td>3 Litres</td>
+                                <td style="color:#7f8c8d;">346.23</td>
+                                <td style="color:#2980b9;">387.78</td>
+                                <td>418.8</td>
+                                <td style="font-weight:bold; font-size:1.1em;">490.0</td>
+                                <td style="color:orange;">+71.2 <small>(14%)</small></td>
+                                <td style="color:#555;">+31.02</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Eco
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>Force express</strong></td>
+                                <td>3 Litres</td>
+                                <td style="color:#7f8c8d;">897.38</td>
+                                <td style="color:#2980b9;">1005.06</td>
+                                <td>1085.47</td>
+                                <td style="font-weight:bold; font-size:1.1em;">1270.0</td>
+                                <td style="color:orange;">+184.53 <small>(14%)</small></td>
+                                <td style="color:#555;">+80.41</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Premium
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr style="background-color: #d6eaf8;">
+                                <td colspan="10" style="padding:10px; font-weight:bold; color:#2980b9;">📏 FORMAT 4.5
+                                    LITRES</td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>VAVO</strong></td>
+                                <td>4.5 Litres</td>
+                                <td style="color:#7f8c8d;">457.17</td>
+                                <td style="color:#2980b9;">512.03</td>
+                                <td>552.99</td>
+                                <td style="font-weight:bold; font-size:1.1em;">647.0</td>
+                                <td style="color:orange;">+94.01 <small>(14%)</small></td>
+                                <td style="color:#555;">+40.96</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Mid
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>LIFE</strong></td>
+                                <td>4.5 Litres</td>
+                                <td style="color:#7f8c8d;">473.42</td>
+                                <td style="color:#2980b9;">530.23</td>
+                                <td>572.65</td>
+                                <td style="font-weight:bold; font-size:1.1em;">670.0</td>
+                                <td style="color:orange;">+97.35 <small>(14%)</small></td>
+                                <td style="color:#555;">+42.42</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Mid
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>OURS BLANC</strong></td>
+                                <td>4.5 Litres</td>
+                                <td style="color:#7f8c8d;">466.35</td>
+                                <td style="color:#2980b9;">522.32</td>
+                                <td>564.1</td>
+                                <td style="font-weight:bold; font-size:1.1em;">660.0</td>
+                                <td style="color:orange;">+95.9 <small>(14%)</small></td>
+                                <td style="color:#555;">+41.78</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Mid
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr style="background-color: #d6eaf8;">
+                                <td colspan="10" style="padding:10px; font-weight:bold; color:#2980b9;">📏 FORMAT 5
+                                    LITRES</td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>LIFE</strong></td>
+                                <td>5 Litres</td>
+                                <td style="color:#7f8c8d;">473.42</td>
+                                <td style="color:#2980b9;">530.23</td>
+                                <td>572.65</td>
+                                <td style="font-weight:bold; font-size:1.1em;">670.0</td>
+                                <td style="color:orange;">+97.35 <small>(14%)</small></td>
+                                <td style="color:#555;">+42.42</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Mid
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>PRO VIT</strong></td>
+                                <td>5 Litres</td>
+                                <td style="color:#7f8c8d;">459.29</td>
+                                <td style="color:#2980b9;">514.4</td>
+                                <td>555.56</td>
+                                <td style="font-weight:bold; font-size:1.1em;">650.0</td>
+                                <td style="color:orange;">+94.44 <small>(14%)</small></td>
+                                <td style="color:#555;">+41.16</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Mid
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr style="background-color: #d6eaf8;">
+                                <td colspan="10" style="padding:10px; font-weight:bold; color:#2980b9;">📏 FORMAT 10
+                                    LITRES</td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>VAVO</strong></td>
+                                <td>10 Litres</td>
+                                <td style="color:#7f8c8d;">760.3</td>
+                                <td style="color:#2980b9;">851.54</td>
+                                <td>919.66</td>
+                                <td style="font-weight:bold; font-size:1.1em;">1076.0</td>
+                                <td style="color:orange;">+156.34 <small>(14%)</small></td>
+                                <td style="color:#555;">+68.12</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Premium
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>LIFE</strong></td>
+                                <td>10 Litres</td>
+                                <td style="color:#7f8c8d;">806.23</td>
+                                <td style="color:#2980b9;">902.98</td>
+                                <td>975.21</td>
+                                <td style="font-weight:bold; font-size:1.1em;">1141.0</td>
+                                <td style="color:orange;">+165.79 <small>(14%)</small></td>
+                                <td style="color:#555;">+72.23</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Premium
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>D'tache</strong></td>
+                                <td>10 Litres</td>
+                                <td style="color:#7f8c8d;">579.41</td>
+                                <td style="color:#2980b9;">648.94</td>
+                                <td>700.85</td>
+                                <td style="font-weight:bold; font-size:1.1em;">820.0</td>
+                                <td style="color:orange;">+119.15 <small>(14%)</small></td>
+                                <td style="color:#555;">+51.91</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Premium
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>Lina clean</strong></td>
+                                <td>10 Litres</td>
+                                <td style="color:#7f8c8d;">759.59</td>
+                                <td style="color:#2980b9;">850.74</td>
+                                <td>918.8</td>
+                                <td style="font-weight:bold; font-size:1.1em;">1075.0</td>
+                                <td style="color:orange;">+156.2 <small>(14%)</small></td>
+                                <td style="color:#555;">+68.06</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Premium
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>PRO VIT</strong></td>
+                                <td>10 Litres</td>
+                                <td style="color:#7f8c8d;">787.86</td>
+                                <td style="color:#2980b9;">882.4</td>
+                                <td>952.99</td>
+                                <td style="font-weight:bold; font-size:1.1em;">1115.0</td>
+                                <td style="color:orange;">+162.01 <small>(14%)</small></td>
+                                <td style="color:#555;">+70.59</td>
+                                <td style="font-size:0.9em;">Estimé (Reverse Calc)</td>
+                                <td>
+                                    <span style="font-size:0.8em; color:grey;">
+                                        Premium
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ================= ONGLET 0 : CATALOGUE OLGA ================= -->
+        <div id="Catalogue" class="tab-content active">
+            <div class="header-section" style="background: linear-gradient(135deg, #34495e, #2c3e50);">
+                <h1>📦 Catalogue Produits & Recommandations Stratégiques</h1>
+                <p>Données synchronisées en temps réel avec le Google Sheet.</p>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
+                    <div id="loading-status" style="color: #f39c12; font-weight: bold;">⌛ Chargement des données...
+                    </div>
+
+                    <!-- BOUTON LANCEUR DE VEILLE (Lien vers le Batch local) -->
+                    <a href="lancer_veille.bat" target="_blank" style="text-decoration:none;">
+                        <button class="refresh-btn" style="background-color:#e67e22; font-size:0.9rem;">
+                            🔄 Lancer Robot Veille Concurrents
+                        </button>
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead>
+                            <tr
+                                style="background-color: #2c3e50; color: #ecf0f1; font-size: 0.95rem; text-transform: uppercase; height: 50px; border-bottom: 3px solid #34495e;">
+                                <th>Produit</th>
+                                <th>Colis.</th>
+                                <th>Contenance</th>
+                                <th>Caractéristiques</th>
+                                <th>Photos</th>
+                                <th>Prix Usine</th>
+                                <th>Prix / Litre</th>
+                                <th>Prix Distri.</th>
+                                <th style="background-color: #27ae60; color:white;">Prix
+                                    Launch<br><small>(Ambassador)</small></th>
+                                <th>Sup A</th>
+                                <th>Sup B</th>
+                                <th>Epicerie</th>
+                                <th>Prix Public</th>
+                                <th style="background-color: #c0392b; color:white;">💡 RECOMMANDATION STRATÉGIQUE</th>
+                            </tr>
+                        </thead>
+                        <tbody id="catalogue-body">
+                            <!-- DATA MANUALLY INJECTED BY AGENT (OFFLINE MODE) -->
+                            <tr style="background-color: #eaf2f8;">
+                                <td colspan="14"><strong>📦 GAMME CUISINE & DÉGRAISSAGE</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Dégraissant moussant spray</strong></td>
+                                <td>12</td>
+                                <td>750 ml</td>
+                                <td>Action rapide, mousse active</td>
+                                <td><img src="./../01_Core/Photos/OLGA PACKSHOT/olga_degraissant_750ml.jpg"
+                                        class="packshot-img" style="height:50px;"></td>
+                                <td>170,00</td>
+                                <td>226,67</td>
+                                <td>190</td>
+                                <td><strong>190</strong></td>
+                                <td>200</td>
+                                <td>205</td>
+                                <td>205</td>
+                                <td>240 - 270</td>
+                                <td style="font-size:0.85rem;">Produit technique. À placer à côté du liquide vaisselle
+                                    Isis.</td>
+                            </tr>
+                            <tr style="background-color: #fff3e0;">
+                                <td><strong>Liquide vaisselle citron</strong></td>
+                                <td>12</td>
+                                <td>750 ml</td>
+                                <td>Super dégraissant, usage quotidien</td>
+                                <td><img src="./../01_Core/Photos/OLGA PACKSHOT/olga_vaisselle_750ml.jpg"
+                                        class="packshot-img" style="height:50px;"></td>
+                                <td>75,00</td>
+                                <td>100,00</td>
+                                <td>90</td>
+                                <td><strong>85</strong></td>
+                                <td>110</td>
+                                <td>115</td>
+                                <td>115</td>
+                                <td>150 à 170</td>
+                                <td style="color:#c0392b; font-weight:bold; font-size:0.85rem;">ARME ANTI-CONCURRENCE.
+                                    Prix imbattable. Marge +80%.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Liquide vaisselle citron</strong></td>
+                                <td>carton de 6</td>
+                                <td>2 L</td>
+                                <td>Format familial, économique</td>
+                                <td><img src="./../01_Core/Photos/OLGA PACKSHOT/olga_vaisselle_2l.jpg"
+                                        class="packshot-img" style="height:50px;"></td>
+                                <td>175,00</td>
+                                <td>87,50</td>
+                                <td>200</td>
+                                <td><strong>200</strong></td>
+                                <td>205</td>
+                                <td>215</td>
+                                <td>215</td>
+                                <td>240 - 260</td>
+                                <td style="font-size:0.85rem;">Alternative économique au 3L d'Isis.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Liquide vaisselle citron</strong></td>
+                                <td>pack de 3</td>
+                                <td>5 L</td>
+                                <td>Très économique, familles</td>
+                                <td><img src="./../01_Core/Photos/OLGA PACKSHOT/olga_vaisselle_5l.jpg"
+                                        class="packshot-img" style="height:50px;"></td>
+                                <td>310,00</td>
+                                <td>62,00</td>
+                                <td>340</td>
+                                <td><strong>340</strong></td>
+                                <td>360</td>
+                                <td>380</td>
+                                <td>380</td>
+                                <td>420 - 460</td>
+                                <td style="font-size:0.85rem;">Pour familles nombreuses et Snacks.</td>
+                            </tr>
+
+                            <tr style="background-color: #eaf2f8;">
+                                <td colspan="14"><strong>📦 GAMME MULTI-SURFACES</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Nettoyant multi-surfaces spray</strong></td>
+                                <td>carton de 12</td>
+                                <td>750 ml</td>
+                                <td>Nettoie sans traces</td>
+                                <td><img src="./../01_Core/Photos/OLGA PACKSHOT/olga_multisurfaces_750ml.jpg"
+                                        class="packshot-img" style="height:50px;"></td>
+                                <td>135,00</td>
+                                <td>160,00</td>
+                                <td>150</td>
+                                <td><strong>150</strong></td>
+                                <td>160</td>
+                                <td>165</td>
+                                <td>165</td>
+                                <td>185 - 210</td>
+                                <td style="font-size:0.85rem;">Alternative crédible à Force Express.</td>
+                            </tr>
+
+                            <tr style="background-color: #eaf2f8;">
+                                <td colspan="14"><strong>📦 GAMME SALLE DE BAIN</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Nettoyant salle de bain anti-calcaire</strong></td>
+                                <td>carton de 12</td>
+                                <td>750 ml</td>
+                                <td>Élimine le calcaire</td>
+                                <td><img src="./../01_Core/Photos/OLGA PACKSHOT/olga_anticalcaire_750ml.jpg"
+                                        class="packshot-img" style="height:50px;"></td>
+                                <td>180,00</td>
+                                <td>-</td>
+                                <td>200</td>
+                                <td><strong>200</strong></td>
+                                <td>210</td>
+                                <td>215</td>
+                                <td>215</td>
+                                <td>-</td>
+                                <td style="font-size:0.85rem;">Niche indispensable. Marge confortable.</td>
+                            </tr>
+
+                            <tr style="background-color: #eaf2f8;">
+                                <td colspan="14"><strong>📦 GAMME ENTRETIEN DU LINGE</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Détachant textiles spray</strong></td>
+                                <td>carton de 12</td>
+                                <td>750 ml</td>
+                                <td>Élimine taches tenaces</td>
+                                <td><img src="./../01_Core/Photos/OLGA PACKSHOT/olga_detachant_750ml.jpg"
+                                        class="packshot-img" style="height:50px;"></td>
+                                <td>190,00</td>
+                                <td>-</td>
+                                <td>210</td>
+                                <td><strong>210</strong></td>
+                                <td>230</td>
+                                <td>240</td>
+                                <td>240</td>
+                                <td>280 - 300</td>
+                                <td style="font-size:0.85rem;">Vente additionnelle systématique (Cross-sell).</td>
+                            </tr>
+                            <tr style="background-color: #fff3e0;">
+                                <td><strong>Savon / nettoyant linge (bidon)</strong></td>
+                                <td>carton de 4</td>
+                                <td>3 L</td>
+                                <td>Liquide machine pack eco</td>
+                                <td><img src="./../01_Core/Photos/OLGA PACKSHOT/olga_linge_bidon_3l.png"
+                                        class="packshot-img" style="height:50px;"></td>
+                                <td>290,00</td>
+                                <td>96,67</td>
+                                <td>330</td>
+                                <td><strong>340</strong></td>
+                                <td>360</td>
+                                <td>370</td>
+                                <td>370</td>
+                                <td>420 - 460</td>
+                                <td style="color:#c0392b; font-weight:bold; font-size:0.85rem;">PRODUIT D'APPEL. Marge
+                                    Détaillant record (+110 DA).</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Savon / nettoyant linge (bidon)</strong></td>
+                                <td>Vrac</td>
+                                <td>5 L</td>
+                                <td>Usage familial / semi-pro</td>
+                                <td><img src="./Photos/OLGA PACKSHOT/olga_linge_bidon_5l - Copie.jpg"
+                                        class="packshot-img" style="height:50px;"></td>
+                                <td>395,00</td>
+                                <td>79,00</td>
+                                <td>340</td>
+                                <td><strong>450</strong></td>
+                                <td>470</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td style="font-size:0.85rem;">Format de transition.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Savon / nettoyant linge (bidon)</strong></td>
+                                <td>vrac</td>
+                                <td>10 L</td>
+                                <td>Usage familial / semi-pro</td>
+                                <td><img src="./Photos/OLGA PACKSHOT/olga_linge_bidon_10l.jpg" class="packshot-img"
+                                        style="height:50px;"></td>
+                                <td>750,00</td>
+                                <td>75,00</td>
+                                <td>790</td>
+                                <td><strong>800</strong></td>
+                                <td>820</td>
+                                <td>840</td>
+                                <td>840</td>
+                                <td>900 - 950</td>
+                                <td style="color:#d35400; font-size:0.85rem;">Cible Pro. Panier élevé. À pousser zones
+                                    rurales.</td>
+                            </tr>
+
+                            <tr style="background-color: #eaf2f8;">
+                                <td colspan="14"><strong>📦 GAMME HYGIÈNE</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Savon liquide mains</strong></td>
+                                <td>pack de 3</td>
+                                <td>5 L</td>
+                                <td>Nettoyage doux, usage fréquent</td>
+                                <td><img src="./Photos/OLGA PACKSHOT/olga_savon_mains_5l.jpg" class="packshot-img"
+                                        style="height:50px;"></td>
+                                <td>300,00</td>
+                                <td>60,00</td>
+                                <td>330</td>
+                                <td><strong>330</strong></td>
+                                <td>360</td>
+                                <td>370</td>
+                                <td>370</td>
+                                <td>-</td>
+                                <td style="font-size:0.85rem;">Produit de commodité pour gros consommateurs.</td>
+                            </tr>
+
+                            <tr style="background-color: #eaf2f8;">
+                                <td colspan="14"><strong>📦 GAMME ENTRETIEN DES SOLS</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>SANIBON 04 parfums</strong></td>
+                                <td>pack de 3</td>
+                                <td>5 L</td>
+                                <td>Nettoyage des sols, parfum</td>
+                                <td><img src="./Photos/OLGA PACKSHOT/olga_sanibon_5l.jpg" class="packshot-img"
+                                        style="height:50px;"></td>
+                                <td>130,00</td>
+                                <td>26,00</td>
+                                <td>150</td>
+                                <td><strong>150</strong></td>
+                                <td>155</td>
+                                <td>170</td>
+                                <td>170</td>
+                                <td>192</td>
+                                <td style="font-size:0.85rem;">Volume énorme pour prix dérisoire. Remplit le caddie.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Lave-sol parfumé "3 parfums"</strong></td>
+                                <td>carton de 10</td>
+                                <td>1 L</td>
+                                <td>Nettoyage des sols, parfum</td>
+                                <td><img src="./Photos/OLGA PACKSHOT/olga_sol_1l.jpg" class="packshot-img"
+                                        style="height:50px;"></td>
+                                <td>90,00</td>
+                                <td>90,00</td>
+                                <td>100</td>
+                                <td><strong>100</strong></td>
+                                <td>120</td>
+                                <td>125</td>
+                                <td>125</td>
+                                <td>144</td>
+                                <td style="font-size:0.85rem;">Prix psychologique bas. Achat d'impulsion.</td>
+                            </tr>
+
+                            <tr style="background-color: #eaf2f8;">
+                                <td colspan="14"><strong>📦 GAMME VITRES (VAYA)</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Lave-vitres spray</strong></td>
+                                <td>carton de 12</td>
+                                <td>500 ml</td>
+                                <td>Nettoyage vitres sans traces</td>
+                                <td><img src="./Photos/OLGA PACKSHOT/olga_vitres_vaya_500ml.jpg" class="packshot-img"
+                                        style="height:50px;"></td>
+                                <td>60,00</td>
+                                <td>90,00</td>
+                                <td>90</td>
+                                <td><strong>90</strong></td>
+                                <td>100</td>
+                                <td>105</td>
+                                <td>105</td>
+                                <td>120</td>
+                                <td style="font-size:0.85rem;">Entrée de gamme efficace.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCRIPT DYNAMIQUE GOOGLE SHEET -->
+        <script>
+            // URL GOOGLE SHEET (Via Proxy pour contourner le blocage CORS des fichiers locaux)
+            // On utilise https://api.allorigins.win/raw pour relayer la requête
+            const ORIGIN_URL = 'https://docs.google.com/spreadsheets/d/192P12Vs7FN8AyWYgFmo5mZ2phR2lSWixxtXuPgBebs8/export?format=csv';
+            const PROXY_URL = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(ORIGIN_URL) + '&timestamp=' + new Date().getTime();
+
+            // BASE DE DONNÉES IMAGES & RECOMMANDATIONS (Mapping Souple)
+            const PRODUIT_META = [
+                // RÈGLES PRIORITAIRES (Les plus précises d'abord)
+                { keywords: ["Vaisselle", "750"], img: "./Photos/OLGA PACKSHOT/olga_vaisselle_750ml.jpg", reco: "ARME ANTI-CONCURRENCE. Prix imbattable. Marge +80%.", style: "color:#c0392b; font-weight:bold;" },
+                { keywords: ["Vaisselle", "5"], img: "./Photos/OLGA PACKSHOT/olga_vaisselle_5l.jpg", reco: "Pour familles nombreuses et restauration.", style: "" },
+                { keywords: ["Vaisselle", "2"], img: "./Photos/OLGA PACKSHOT/olga_vaisselle_2l.jpg", reco: "Alternative économique au 3L concurrent.", style: "" },
+
+                // LINGE
+                { keywords: ["Linge", "10"], img: "./Photos/OLGA PACKSHOT/olga_linge_bidon_10l.jpg", reco: "Cible Pro. Panier élevé. À pousser zones rurales.", style: "color:#d35400;" },
+                { keywords: ["Linge", "5"], img: "./Photos/OLGA PACKSHOT/olga_linge_bidon_5l - Copie.jpg", reco: "Format de transition. Bon compromis.", style: "" },
+                { keywords: ["Linge", "3"], img: "./Photos/OLGA PACKSHOT/olga_linge_bidon_3l.png", reco: "PRODUIT D'APPEL MAJEUR. Marge Détaillant record (+110 DA).", style: "color:#c0392b; font-weight:bold;" },
+
+                // SPÉCIFIQUES
+                { keywords: ["Détachant"], img: "./Photos/OLGA PACKSHOT/olga_detachant_750ml.jpg", reco: "Vente additionnelle systématique (Cross-sell).", style: "" },
+                { keywords: ["Dégraissant"], img: "./Photos/OLGA PACKSHOT/olga_degraissant_750ml.jpg", reco: "Produit technique. À placer avec liquide vaisselle.", style: "" },
+
+                // SOLS & SURFACES
+                { keywords: ["Sol", "1"], img: "./Photos/OLGA PACKSHOT/olga_sol_1l.jpg", reco: "Prix psychologique bas. Achat d'impulsion.", style: "" },
+                { keywords: ["Sanibon"], img: "./Photos/OLGA PACKSHOT/olga_sanibon_5l.jpg", reco: "Volume énorme pour prix dérisoire. Remplit le caddie.", style: "" },
+                { keywords: ["Multi", "Surfaces"], img: "./Photos/OLGA PACKSHOT/olga_multisurfaces_750ml.jpg", reco: "Alternative crédible à Force Express 5en1.", style: "" },
+                { keywords: ["Calcaire"], img: "./Photos/OLGA PACKSHOT/olga_anticalcaire_750ml.jpg", reco: "Niche indispensable. Marge confortable.", style: "" },
+
+                // AUTRES
+                { keywords: ["Vitres"], img: "./Photos/OLGA PACKSHOT/olga_vitres_vaya_500ml.jpg", reco: "Entrée de gamme efficace.", style: "" },
+                { keywords: ["Savon", "Mains"], img: "./Photos/OLGA PACKSHOT/olga_savon_mains_5l.jpg", reco: "Produit de commodité gros volume.", style: "" }
+            ];
+
+            // Charger les données au démarrage
+            fetch(PROXY_URL)
+                .then(response => {
+                    if (!response.ok) throw new Error("Erreur Réseau Proxy");
+                    return response.text();
+                })
+                .then(csvText => {
+                    // FONCTION DE PARSING CSV ROBUSTE
+                    function parseCSV(text) {
+                        const rows = [];
+                        let row = [];
+                        let inQuote = false;
+                        let currentCell = '';
+                        for (let i = 0; i < text.length; i++) {
+                            const char = text[i];
+                            const nextChar = text[i + 1];
+                            if (char === '"') {
+                                if (inQuote && nextChar === '"') { currentCell += '"'; i++; }
+                                else { inQuote = !inQuote; }
+                            } else if (char === ',' && !inQuote) {
+                                row.push(currentCell.trim()); currentCell = '';
+                            } else if ((char === '\r' || char === '\n') && !inQuote) {
+                                if (currentCell || row.length > 0) row.push(currentCell.trim());
+                                if (row.length > 0) rows.push(row);
+                                row = []; currentCell = '';
+                                if (char === '\r' && nextChar === '\n') i++;
+                            } else { currentCell += char; }
+                        }
+                        if (currentCell || row.length > 0) { row.push(currentCell.trim()); rows.push(row); }
+                        return rows;
+                    }
+
+                    const rows = parseCSV(csvText);
+                    const tbody = document.getElementById('catalogue-body');
+                    tbody.innerHTML = '';
+
+                    let currentGamme = "";
+
+                    // ANALYSE STRUCTURÉE
+                    for (let i = 0; i < rows.length; i++) {
+                        let col = rows[i];
+
+                        // IGNORER LES LIGNES VIDES OU EN-TÊTES
+                        if (col.length < 5) continue;
+                        let firstCell = col[0].toUpperCase();
+                        let secondCell = col[1] ? col[1].toUpperCase() : "";
+                        if (firstCell.includes("MARQUE") || secondCell.includes("GAMME")) continue;
+                        if (firstCell.includes("GAMME MARQUE")) continue;
+
+                        // MAPPING DES DONNÉES
+                        let gamme = col[1] || "";
+                        let produit = col[2] || "";
+                        let colis = col[3] || "-";
+                        let format = col[4] || "-";
+                        let carac = col[5] || "-";
+                        let usine = col[7] || "-";
+                        let parLitre = col[8] || "-";
+                        let distri = col[9] || "-";
+                        let launch = col[10] || "-";
+                        let supA = col[11] || "-";
+                        let supB = col[12] || "-";
+                        let epicerie = col[13] || "-";
+                        let publicP = col[14] || "-";
+
+                        if (!produit || produit === "-") continue;
+
+                        // --- RECHERCHE INTELLIGENTE IMAGE & RECO ---
+                        // On cherche le PREMIER objet dont TOUS les mots clés sont présents dans (Produit + Format)
+                        let searchString = (produit + " " + format).toLowerCase();
+                        let meta = { img: "", reco: "", style: "" };
+
+                        for (let item of PRODUIT_META) {
+                            // Vérifie si TOUS les keywords de l'item sont dans searchString
+                            let allMatch = item.keywords.every(kw => searchString.includes(kw.toLowerCase()));
+                            if (allMatch) {
+                                meta = item;
+                                break; // Trouvé !
+                            }
+                        }
+
+                        // TAILLE IMAGE ÉLARGIE À 65PX POUR MEILLEURE VISIBILITÉ
+                        let imgHtml = meta.img ? `<img src="${meta.img}" class="packshot-img" style="height:65px; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">` : "-";
+
+                        // Gestion Affichage Gamme (En-tête de section)
+                        if (gamme && gamme !== currentGamme) {
+                            let trG = document.createElement('tr');
+                            trG.style.backgroundColor = '#d6eaf8'; // Bleu plus soutenu pour séparation
+                            trG.innerHTML = `<td colspan="14" style="padding:15px; font-size:1.2em; color:#1a5276; border-left: 5px solid #2980b9;"><strong>📦 GAMME ${gamme.toUpperCase()}</strong></td>`;
+                            tbody.appendChild(trG);
+                            currentGamme = gamme;
+                        }
+
+                        // Ligne Produit
+                        let tr = document.createElement('tr');
+                        // Highlight visuel pour produits clés
+                        if (carac.toUpperCase().includes("STAR") || meta.reco.includes("MAJEUR")) {
+                            tr.style.backgroundColor = "#fff3e0"; // Orange pâle
+                        }
+
+                        // Construction ligne (Sans la colonne Gamme au début)
+                        tr.innerHTML = `
+                            <td style="font-size:1.05em; color:#2c3e50;"><strong>${produit}</strong></td>
+                            <td>${colis}</td>
+                            <td><strong>${format}</strong></td>
+                            <td style="color:#7f8c8d; font-size:0.9em;">${carac}</td>
+                            <td>${imgHtml}</td>
+                            <td style="color:#2980b9; font-weight:bold;">${usine}</td>
+                            <td style="font-size:0.9em;">${parLitre}</td>
+                            <td>${distri}</td>
+                            <td style="background-color:#e8f8f5; font-weight:bold; color:#27ae60; font-size:1.1em;">${launch}</td>
+                            <td>${supA}</td>
+                            <td>${supB}</td>
+                            <td>${epicerie}</td>
+                            <td style="font-weight:bold;">${publicP}</td>
+                            <td style="${meta.style}">${meta.reco}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    }
+                    document.getElementById('loading-status').innerHTML = "✅ Données synchronisées avec succès !";
+                    document.getElementById('loading-status').style.color = "#27ae60";
+                })
+                .catch(err => {
+                    console.log('Mode déconnecté (Utilisation des données locales)');
+                    // Si on a des données dans le tableau (pré-chargées), c'est parfait
+                    if (document.getElementById('catalogue-body').children.length > 0) {
+                        document.getElementById('loading-status').innerHTML = "✅ Base de données locale active";
+                        document.getElementById('loading-status').style.color = "#27ae60"; // Vert
+                    } else {
+                        document.getElementById('loading-status').innerHTML = "❌ Aucune donnée disponible.";
+                        document.getElementById('loading-status').style.color = "#e74c3c";
+                    }
+                });
+        </script>
+
+        <!-- ================= ONGLET 1 : UNIVERS LINGE ================= -->
+        <!-- Contient: Lessive Liquide + Détachant -->
+        <div id="Linge" class="tab-content">
+            <div class="header-section" style="background: linear-gradient(135deg, #3498db, #2980b9);">
+                <h1>🧺 L'Univers du Linge</h1>
+                <p>Stratégie : Volume & Complémentarité. Vendre la lessive (Trafic) et booster le panier avec le
+                    Détachant Express.</p>
+            </div>
+
+            <div class="grid">
+                <!-- Carte Market Share Lessive -->
+                <div class="card">
+                    <h2>Parts de Marché Lessive (Vol.)</h2>
+                    <canvas id="lessiveMarketShare"></canvas>
+                </div>
+                <!-- Carte Prix Lessive -->
+                <div class="card">
+                    <h2>Benchmark Prix Lessive (DA/L)</h2>
+                    <canvas id="lessivePrice"></canvas>
+                </div>
+            </div>
+
+            <!-- ANALYSE CHAÎNE DE VALEUR (Value Chain) -->
+            <div class="card" style="border-top: 4px solid #3498db;">
+                <h2>1. Benchmark Concurrentiel & Structure de Marge</h2>
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead>
+                            <tr style="background-color: #2c3e50; color: white;">
+                                <th>Marque / Segment</th>
+                                <th>Format</th>
+                                <th>Prix Usine (Est.)</th>
+                                <th>Prix Distributeur</th>
+                                <th>Prix Détaillant</th>
+                                <th>Prix Public</th>
+                                <th>Marge Détaillant (Est.)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- PREMIUM -->
+                            <tr style="background-color: #d6eaf8;">
+                                <td colspan="7"><strong>🏁 SEGMENT PREMIUM (International + Tech)</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>FORCE EXPRESS</strong></td>
+                                <td>3 Litres</td>
+                                <td>~ 900 DA</td>
+                                <td>~ 1 000 DA</td>
+                                <td>~ 1 080 DA</td>
+                                <td><strong>1 270 DA</strong></td>
+                                <td style="color:orange;">+190 DA (15%)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ARIEL</strong></td>
+                                <td>2.5 Litres</td>
+                                <td>~ 680 DA</td>
+                                <td>~ 760 DA</td>
+                                <td>~ 820 DA</td>
+                                <td><strong>1 100 DA</strong></td>
+                                <td style="color:orange;">+280 DA (25%)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>LE CHAT</strong></td>
+                                <td>2.5 Litres</td>
+                                <td>~ 560 DA</td>
+                                <td>~ 625 DA</td>
+                                <td>~ 675 DA</td>
+                                <td><strong>790 DA</strong></td>
+                                <td style="color:orange;">+115 DA (14%)</td>
+                            </tr>
+
+                            <!-- MAINSTREAM -->
+                            <tr style="background-color: #d6eaf8;">
+                                <td colspan="7"><strong>⚖️ SEGMENT MAINSTREAM (Marques Nationales)</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>BINGO</strong> (Hayat)</td>
+                                <td>2.5 Litres</td>
+                                <td>~ 560 DA</td>
+                                <td>~ 625 DA</td>
+                                <td>~ 675 DA</td>
+                                <td><strong>790 DA</strong></td>
+                                <td style="color:orange;">+115 DA (14%)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AIGLE</strong></td>
+                                <td>2.5 Litres</td>
+                                <td>~ 490 DA</td>
+                                <td>~ 545 DA</td>
+                                <td>~ 590 DA</td>
+                                <td><strong>690 DA</strong></td>
+                                <td style="color:orange;">+100 DA (14%)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TEST</strong> (Hayat)</td>
+                                <td>2.5 Litres</td>
+                                <td>~ 400 DA</td>
+                                <td>~ 445 DA</td>
+                                <td>~ 480 DA</td>
+                                <td><strong>560 DA</strong></td>
+                                <td style="color:orange;">+80 DA (14%)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ISIS</strong> (Henkel)</td>
+                                <td>2.5 Litres</td>
+                                <td>~ 385 DA</td>
+                                <td>~ 430 DA</td>
+                                <td>~ 465 DA</td>
+                                <td><strong>545 DA</strong></td>
+                                <td style="color:orange;">+80 DA (14%)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DAKO</strong></td>
+                                <td>3 Litres</td>
+                                <td>~ 400 DA</td>
+                                <td>~ 450 DA</td>
+                                <td>~ 485 DA</td>
+                                <td><strong>570 DA</strong></td>
+                                <td style="color:orange;">+85 DA (15%)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EL BAHDJA</strong></td>
+                                <td>3 Litres</td>
+                                <td>~ 380 DA</td>
+                                <td>~ 425 DA</td>
+                                <td>~ 460 DA</td>
+                                <td><strong>540 DA</strong></td>
+                                <td style="color:orange;">+80 DA (15%)</td>
+                            </tr>
+
+                            <!-- ECO -->
+                            <tr style="background-color: #d6eaf8;">
+                                <td colspan="7"><strong>📉 SEGMENT ÉCONOMIQUE (Bataille Prix)</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>OURS BLANC</strong></td>
+                                <td>3 Litres</td>
+                                <td>~ 345 DA</td>
+                                <td>~ 385 DA</td>
+                                <td>~ 420 DA</td>
+                                <td><strong>490 DA</strong></td>
+                                <td style="color:green; font-weight:bold;">+70 DA (14%)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>LIFE</strong></td>
+                                <td>3 Litres</td>
+                                <td>~ 340 DA</td>
+                                <td>~ 380 DA</td>
+                                <td>~ 415 DA</td>
+                                <td><strong>485 DA</strong></td>
+                                <td style="color:green; font-weight:bold;">+70 DA (14%)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>VAVO / LINA</strong></td>
+                                <td>3 Litres</td>
+                                <td>~ 310 DA</td>
+                                <td>~ 350 DA</td>
+                                <td>~ 375 DA</td>
+                                <td><strong>440 DA</strong></td>
+                                <td style="color:green; font-weight:bold;">+65 DA (15%)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TOPSIL / PRO VIT</strong></td>
+                                <td>3 Litres</td>
+                                <td>~ 305 DA</td>
+                                <td>~ 345 DA</td>
+                                <td>~ 370 DA</td>
+                                <td><strong>435 DA</strong></td>
+                                <td style="color:green; font-weight:bold;">+65 DA (15%)</td>
+                            </tr>
+
+                            <!-- GROS FORMATS -->
+                            <tr style="background-color: #d6eaf8;">
+                                <td colspan="7"><strong>📦 GRANDS FORMATS (5L - 10L)</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>LIFE</strong></td>
+                                <td>5 Litres</td>
+                                <td>~ 475 DA</td>
+                                <td>~ 530 DA</td>
+                                <td>~ 575 DA</td>
+                                <td><strong>670 DA</strong></td>
+                                <td style="color:green; font-weight:bold;">+95 DA (14%)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>LIFE</strong></td>
+                                <td>10 Litres</td>
+                                <td>~ 800 DA</td>
+                                <td>~ 900 DA</td>
+                                <td>~ 975 DA</td>
+                                <td><strong>1 140 DA</strong></td>
+                                <td style="color:green; font-weight:bold;">+165 DA (14%)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>VAVO</strong></td>
+                                <td>10 Litres</td>
+                                <td>~ 760 DA</td>
+                                <td>~ 850 DA</td>
+                                <td>~ 920 DA</td>
+                                <td><strong>1 076 DA</strong></td>
+                                <td style="color:green; font-weight:bold;">+156 DA (14%)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- OFFRE OLGA DETAILED -->
+            <div class="card" style="border-top: 4px solid #2980b9; background-color: #fff8f5;">
+                <h2>🔥 2. Structure Offre OLGA (Optimisation Marge Détaillant)</h2>
+                <table>
+                    <thead>
+                        <tr style="background-color: #d35400; color: white;">
+                            <th>PRODUIT OLGA</th>
+                            <th>Format</th>
+                            <th>Prix Usine</th>
+                            <th>Prix Launch (Distri)</th>
+                            <th>Prix Détaillant (Achat)</th>
+                            <th>Prix Public (Vente)</th>
+                            <th>GAIN DÉTAILLANT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 10L -->
+                        <tr class="olga-row" style="background-color: #fff3e0;">
+                            <td>
+                                <img src="./Photos/OLGA PACKSHOT/olga_linge_bidon_10l.jpg" class="packshot-img">
+                                <strong>10L PRO</strong>
+                            </td>
+                            <td>10 L</td>
+                            <td>750 DA</td>
+                            <td>800 DA</td>
+                            <td>820 DA</td>
+                            <td><strong>890 - 950 DA</strong></td>
+                            <td style="color: #c0392b; font-weight:bold;">~ 100 DA / Unité</td>
+                        </tr>
+                        <!-- 5L -->
+                        <tr class="olga-row" style="background-color: #fff3e0;">
+                            <td>
+                                <strong>5L FAMILLE</strong>
+                            </td>
+                            <td>5 L</td>
+                            <td>395 DA</td>
+                            <td>450 DA</td>
+                            <td>470 DA</td>
+                            <td><strong>600 DA (Est.)</strong></td>
+                            <td style="color: #c0392b; font-weight:bold;">~ 130 DA / Unité</td>
+                        </tr>
+                        <!-- 3L STAR -->
+                        <tr class="olga-row" style="background-color: #ffccbc;">
+                            <td>
+                                <strong>3L STAR (Rupture)</strong>
+                            </td>
+                            <td>3 L</td>
+                            <td>290 DA</td>
+                            <td>340 DA</td>
+                            <td>340 DA</td>
+                            <td><strong>450 DA</strong></td>
+                            <td style="color: #c0392b; font-weight:bold; font-size:1.1rem;">🔥 ~ 110 DA / Unité</td>
+                        </tr>
+                        <!-- Détachant -->
+                        <tr style="border-top: 2px solid #e67e22;">
+                            <td>
+                                <img src="./Photos/OLGA PACKSHOT/olga_detachant_750ml.jpg" class="packshot-img">
+                                <strong>DÉTACHANT</strong>
+                            </td>
+                            <td>750 ML</td>
+                            <td>190 DA</td>
+                            <td>220 DA</td>
+                            <td>240 DA</td>
+                            <td><strong>320 DA (Est.)</strong></td>
+                            <td style="color: #c0392b;">~ 80 DA / Unité</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p style="margin-top:10px; font-weight:bold; color:#d35400;">
+                    💡 Stratégie : Le détaillant gagne 3x plus en vendant OLGA (110 DA) qu'en vendant LIFE (40 DA).
+                    C'est l'argument clé.
+                </p>
+            </div>
+            <div class="card">
+                <h3>Concurrence Détachant</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Marque</th>
+                            <th>Prix Public (Rayon)</th>
+                            <th>Prix Gros</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Vanish</strong> (Ref)</td>
+                            <td>635 DA</td>
+                            <td>550 DA</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OLGA (Recommandé)</strong></td>
+                            <td><strong>235 DA</strong></td>
+                            <td><strong>190 DA</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= ONGLET 2 : UNIVERS CUISINE ================= -->
+        <!-- Contient: Vaisselle + Dégraissant -->
+        <div id="Cuisine" class="tab-content">
+            <div class="header-section" style="background: linear-gradient(135deg, #e67e22, #d35400);">
+                <h1>🍋 L'Univers Cuisine</h1>
+                <p>Stratégie : Quotidien & Efficacité. Le duo inséparable : Nettoyage (Vaisselle) + Décapage
+                    (Dégraissant).</p>
+            </div>
+
+            <div class="grid">
+                <!-- Carte Market Share Vaisselle -->
+                <div class="card">
+                    <h2>Parts de Marché Vaisselle</h2>
+                    <canvas id="vaisselleShare"></canvas>
+                </div>
+                <!-- Carte Prix Vaisselle -->
+                <div class="card">
+                    <h2>Benchmark Prix Vaisselle (DA/L)</h2>
+                    <canvas id="vaissellePrice"></canvas>
+                </div>
+            </div>
+
+            <!-- ANALYSE CHAÎNE DE VALEUR CUISINE -->
+            <div class="card" style="border-top: 4px solid #e67e22;">
+                <h2>1. Benchmark Concurrentiel & Structure de Marge (Vaisselle)</h2>
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead>
+                            <tr style="background-color: #d35400; color: white;">
+                                <th>Marque / Segment</th>
+                                <th>Format</th>
+                                <th>Prix Usine (Est.)</th>
+                                <th>Prix Distributeur</th>
+                                <th>Prix Détaillant</th>
+                                <th>Prix Public</th>
+                                <th>Analyse</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- PREMIUM -->
+                            <tr style="background-color: #fdebd0;">
+                                <td colspan="7"><strong>🏁 SEGMENT PREMIUM (ISIS / PRIL)</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>ISIS</strong> (Henkel)</td>
+                                <td>650 ML</td>
+                                <td>~ 135 DA</td>
+                                <td>~ 155 DA</td>
+                                <td>~ 175 DA</td>
+                                <td><strong>200 DA</strong></td>
+                                <td>Leader inconstesté.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ISIS</strong> (Henkel)</td>
+                                <td>3 Litres</td>
+                                <td>~ 540 DA</td>
+                                <td>~ 620 DA</td>
+                                <td>~ 700 DA</td>
+                                <td><strong>850 DA</strong></td>
+                                <td>Format Familial référence.</td>
+                            </tr>
+                            <!-- MAINSTREAM -->
+                            <tr style="background-color: #fdebd0;">
+                                <td colspan="7"><strong>⚖️ SEGMENT MAINSTREAM (FORCE EXPRESS)</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>FORCE EXPRESS</strong></td>
+                                <td>750 ML</td>
+                                <td>~ 110 DA</td>
+                                <td>~ 130 DA</td>
+                                <td>~ 145 DA</td>
+                                <td><strong>180 DA</strong></td>
+                                <td>Challenger agressif.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AIGLE / ONI</strong></td>
+                                <td>1.25 L</td>
+                                <td>~ 150 DA</td>
+                                <td>~ 180 DA</td>
+                                <td>~ 200 DA</td>
+                                <td><strong>240 DA</strong></td>
+                                <td>Format intermédiaire.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- OFFRE OLGA CUISINE DETAILED -->
+            <div class="card" style="border-top: 4px solid #d35400; background-color: #fffaf0;">
+                <h2>🔥 2. Structure Offre OLGA (Optimisation Marge Détaillant)</h2>
+                <table>
+                    <thead>
+                        <tr style="background-color: #e67e22; color: white;">
+                            <th>PRODUIT OLGA</th>
+                            <th>Format</th>
+                            <th>Prix Usine</th>
+                            <th>Prix Launch (Distri)</th>
+                            <th>Prix Détaillant (Achat)</th>
+                            <th>Prix Public (Vente)</th>
+                            <th>GAIN DÉTAILLANT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 5L Vaisselle -->
+                        <tr class="olga-row" style="background-color: #fce4ec;">
+                            <td>
+                                <img src="./Photos/OLGA PACKSHOT/olga_vaisselle_5l.jpg" class="packshot-img">
+                                <strong>5L FAMILIAL</strong>
+                            </td>
+                            <td>5 Litres</td>
+                            <td>310 DA</td>
+                            <td>340 DA</td>
+                            <td>360 DA</td>
+                            <td><strong>450 DA</strong></td>
+                            <td style="color: #d35400; font-weight:bold;">~ 90 DA / Unité</td>
+                        </tr>
+                        <!-- 2L Vaisselle -->
+                        <tr class="olga-row" style="background-color: #fff3e0;">
+                            <td>
+                                <img src="./Photos/OLGA PACKSHOT/olga_vaisselle_2l.jpg" class="packshot-img">
+                                <strong>2L STANDARD</strong>
+                            </td>
+                            <td>2 Litres</td>
+                            <td>175 DA</td>
+                            <td>200 DA</td>
+                            <td>215 DA</td>
+                            <td><strong>260 DA</strong></td>
+                            <td style="color: #d35400; font-weight:bold;">~ 45 DA / Unité</td>
+                        </tr>
+                        <!-- 750ml Vaisselle -->
+                        <tr class="olga-row" style="background-color: #fff3e0;">
+                            <td>
+                                <img src="./Photos/OLGA PACKSHOT/olga_vaisselle_750ml.jpg" class="packshot-img">
+                                <strong>750 ML CITRON</strong>
+                            </td>
+                            <td>750 ML</td>
+                            <td>75 DA</td>
+                            <td>85 DA</td>
+                            <td>95 - 100 DA</td>
+                            <td><strong>160 DA</strong></td>
+                            <td style="color: #d35400; font-weight:bold; font-size:1.1rem;">🔥 ~ 60 DA / Unité</td>
+                        </tr>
+                        <!-- Dégraissant -->
+                        <tr style="border-top: 2px solid #ddd;">
+                            <td>
+                                <img src="./Photos/OLGA PACKSHOT/olga_degraissant_750ml.jpg" class="packshot-img">
+                                <strong>DÉGRAISSANT PRO</strong>
+                            </td>
+                            <td>750 ML</td>
+                            <td>170 DA</td>
+                            <td>190 DA</td>
+                            <td>210 DA</td>
+                            <td><strong>260 DA</strong></td>
+                            <td style="color: #e67e22;">~ 50 DA / Unité</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p style="margin-top:10px; font-weight:bold; color:#d35400;">
+                    💡 Stratégie : Sur le 750ml, OLGA offre une marge massue (60 DA) là où la concurrence offre 25-30
+                    DA. C'est l'argument pour entrer en rayon.
+                </p>
+            </div>
+        </div>
+
+        <!-- ================= ONGLET 3 : UNIVERS MAISON ================= -->
+        <!-- Contient: Sols, Multi-Surfaces, Anti-Calcaire, Vitres -->
+        <div id="Maison" class="tab-content">
+            <div class="header-section" style="background: linear-gradient(135deg, #27ae60, #1e8449);">
+                <h1>✨ L'Univers Maison & Sols</h1>
+                <p>Stratégie : L'Expertise complète. Un produit pour chaque surface de la maison.</p>
+            </div>
+
+            <div class="grid">
+                <!-- Carte Vitres (Nouveau) -->
+                <div class="card">
+                    <h3>🪟 SPÉCIAL VITRES (VAYA)</h3>
+                    <div style="text-align:center; padding:10px;">
+                        <img src="./Photos/OLGA PACKSHOT/olga_vitres_vaya_500ml.jpg" style="height:120px;">
+                    </div>
+                    <table>
+                        <tr>
+                            <td><strong>Lave-Vitres Spray 500ML</strong></td>
+                            <td class="highlight">Gros: 120 DA (Est.)</td>
+                            <td class="highlight">Public: ~160 DA</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Carte Sols (Nouveau) -->
+                <div class="card">
+                    <h3>🌸 NETTOYANT SOLS</h3>
+                    <div style="text-align:center; padding:10px;">
+                        <img src="./Photos/OLGA PACKSHOT/olga_sol_1l.jpg" style="height:120px;">
+                    </div>
+                    <table>
+                        <tr>
+                            <td><strong>Lave-Sol 1L</strong></td>
+                            <td class="highlight">Gros: 100 DA</td>
+                            <td class="highlight">Public: 144 DA</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Carte Sanibon (Nouveau) -->
+                <div class="card">
+                    <h3>🏠 SANIBON (Grand Format)</h3>
+                    <div style="text-align:center; padding:10px;">
+                        <img src="./Photos/OLGA PACKSHOT/olga_sanibon_5l.jpg" style="height:120px;">
+                    </div>
+                    <table>
+                        <tr>
+                            <td><strong>Sanibon 5L</strong></td>
+                            <td class="highlight">Gros: 150 DA</td>
+                            <td class="highlight">Public: 192 DA</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="grid">
+                <!-- Carte Multi-Surfaces -->
+                <div class="card">
+                    <h3>✨ MULTI-SURFACES (750ml)</h3>
+                    <div style="text-align:center; padding:10px;">
+                        <img src="./Photos/OLGA PACKSHOT/olga_multisurfaces_750ml.jpg" style="height:100px;">
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Marque</th>
+                                <th>Prix Public</th>
+                                <th>Prix Gros</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Force Express (5in1)</td>
+                                <td>170-200 DA</td>
+                                <td>150 DA</td>
+                            </tr>
+                            <tr style="background-color:#e8f5e9;">
+                                <td><strong>OLGA</strong></td>
+                                <td><strong>185-210 DA</strong></td>
+                                <td><strong>150 DA</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Carte Anti-Calcaire -->
+                <div class="card">
+                    <h3>🚿 ANTI-CALCAIRE (750ml)</h3>
+                    <div style="text-align:center; padding:10px;">
+                        <img src="./Photos/OLGA PACKSHOT/olga_anticalcaire_750ml.jpg" style="height:100px;">
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Marque</th>
+                                <th>Prix Public</th>
+                                <th>Prix Gros</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Force Express</td>
+                                <td>225 DA</td>
+                                <td>190 DA</td>
+                            </tr>
+                            <tr style="background-color:#e8f5e9;">
+                                <td><strong>OLGA</strong></td>
+                                <td><strong>220-250 DA</strong></td>
+                                <td><strong>200 DA</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= ONGLET 4 : UNIVERS HYGIÈNE ================= -->
+        <!-- Contient: Savon Liquide -->
+        <div id="Hygiene" class="tab-content">
+            <div class="header-section" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">
+                <h1>🤲 L'Univers Hygiène</h1>
+                <p>Stratégie : Volume. Le format économique pour toute la famille.</p>
+            </div>
+
+            <div class="grid">
+                <div class="card" style="text-align:center;">
+                    <h2>SAVON LIQUIDE MAINS</h2>
+                    <img src="./Photos/OLGA PACKSHOT/olga_savon_mains_5l.jpg" style="height:250px; margin: 20px auto;">
+
+                    <table style="max-width:600px; margin:0 auto;">
+                        <thead>
+                            <tr>
+                                <th>Format</th>
+                                <th>Prix Grossiste</th>
+                                <th>Prix Public Recommandé</th>
+                                <th>Coût au Litre</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background-color:#f3e5f5;">
+                                <td><strong>BIDON 5 LITRES</strong></td>
+                                <td class="highlight" style="font-size:1.2rem; color:#8e44ad;">330 DA</td>
+                                <td><strong>360 - 400 DA</strong></td>
+                                <td><strong>66 DA / L</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top:20px; color:#666;">Usage: Familles nombreuses, Restauration, Collectivités.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= ONGLET 5 : GUIDE D'UTILISATION ================= -->
+        <div id="Guide" class="tab-content">
+            <div class="header-section" style="background: linear-gradient(135deg, #7f8c8d, #2c3e50);">
+                <h1>📘 Guide d'Utilisation - Dashboard OLGA 1.0</h1>
+                <p>Comprendre, Automatiser et Maintenir votre outil.</p>
+            </div>
+
+            <div class="card">
+                <h2>1. Vue d'Ensemble</h2>
+                <p>Ce tableau de bord est votre <strong>cockpit de pilotage</strong>. Il centralise toutes les
+                    informations cruciales pour la prise de décision :</p>
+                <ul style="line-height:1.6;">
+                    <li>📦 <strong>Catalogue Produit</strong> : Synchronisé en temps réel avec votre Google Sheet.</li>
+                    <li>🧺 <strong>Univers Linge</strong> : Analyse de marché, positionnement prix vs Isis/Ariel.</li>
+                    <li>🍋 <strong>Univers Cuisine</strong> : Stratégie Vaisselle & Dégraissant vs Pril/Force Express.
+                    </li>
+                    <li>✨ <strong>Maison & Hygiène</strong> : Opportunités Sols, Vitres et Savon liquide.</li>
+                </ul>
+            </div>
+
+            <div class="card" style="border-left: 5px solid #e67e22;">
+                <h2>2. Automatisation & Robot de Veille 🤖</h2>
+                <p>Le Dashboard intègre un <strong>Robot de Veille Concurrentielle</strong>
+                    (<code>robot_veille.py</code>). Son rôle est de mettre à jour les prix des concurrents (Isis, Omo,
+                    Force Express) dans les graphiques sans que vous ayez à toucher au code.</p>
+
+                <h3 style="margin-top:15px; color:#d35400;">Comment lancer une mise à jour ?</h3>
+                <ol style="line-height:1.6;">
+                    <li><strong>Méthode Manuelle</strong> : Allez sur l'onglet <strong>Catalogue</strong>, cliquez sur
+                        le bouton orange <strong>🔄 Lancer Robot Veille Concurrents</strong>, et acceptez l'exécution du
+                        fichier <code>.bat</code>.</li>
+                    <li><strong>Méthode Automatique</strong> : Si configuré, le robot se lance chaque Dimanche à 9h00
+                        (via Tâche Planifiée Windows).</li>
+                </ol>
+            </div>
+
+            <div class="card" style="border-left: 5px solid #3498db;">
+                <h2>3. Maintenance & Images 📸</h2>
+                <p>Pour ajouter une image, déposez-la dans <code>Photos/OLGA PACKSHOT/</code> en respectant la
+                    nomenclature :</p>
+                <code
+                    style="background:#eee; padding:10px; display:block; margin:10px 0; border-radius:4px; font-weight:bold; color:#2c3e50;">olga_[categorie]_[produit]_[format].jpg</code>
+                <p><em>Exemples :</em> <br><code>olga_linge_bidon_10l.jpg</code> <br>
+                    <code>olga_vaisselle_750ml.jpg</code>
+                </p>
+            </div>
+
+            <div class="card" style="background-color:#fff5f5; border-left: 5px solid #c0392b;">
+                <h2>4. Dépannage 🆘</h2>
+                <ul style="line-height:1.6;">
+                    <li><strong>Tableau vide ("Chargement...") ?</strong> Vérifiez votre connexion internet (accès
+                        Google Sheet nécessaire).</li>
+                    <li><strong>Image manquante ?</strong> Vérifiez le nom du fichier (minuscules, sans espaces) et son
+                        extension (.jpg).</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <div class="footer">
+        <p>&copy; 2026 OLGA - Direction Stratégie & Marketing</p>
+    </div>
+
+    <!-- CHARGEMENT DES DONNÉES CONCURRENTS (AUTOMATISATION) -->
+    <!-- On charge ce script externe qui contient les variables window.DATA_... -->
+    <script src="data_concurrence.js"></script>
+
+    <script>
+        // --- GESTION DES ONGLETS ---
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+                tabcontent[i].classList.remove("active");
+            }
+            tablinks = document.getElementsByClassName("tab-link");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        // ================= CHARTS (Utilisant les données du ROBOT) =================
+        // Ces variables window.DATA_... viennent de data_concurrence.js
+        console.log("Données chargées:", window.DATA_MARKET_SHARE_LESSIVE);
+
+        // 1. Market Share Lessive
+        new Chart(document.getElementById('lessiveMarketShare').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Henkel (Isis)', 'Unilever (Omo)', 'Hayat (Bingo)', 'Locaux (Life, Vavo)'],
+                datasets: [{ data: window.DATA_MARKET_SHARE_LESSIVE || [38, 22, 18, 22], backgroundColor: ['#3498db', '#2980b9', '#95a5a6', '#bdc3c7'] }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+
+        // 2. Price Lessive
+        new Chart(document.getElementById('lessivePrice').getContext('2d'), {
+            type: 'bar',
+            indexAxis: 'y',
+            data: {
+                labels: ['Ariel Pods', 'Omo', 'Isis', 'OLGA 3L', 'OLGA 10L'],
+                datasets: [{ label: 'DA/L', data: window.DATA_PRIX_LESSIVE || [1100, 300, 240, 113, 80], backgroundColor: '#3498db' }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+
+        // 3. Share Vaisselle
+        new Chart(document.getElementById('vaisselleShare').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Pril/Isis', 'Oni/Aigle', 'Force Ex', 'OLGA (Obj.)'],
+                datasets: [{ data: window.DATA_MARKET_SHARE_VAISSELLE || [55, 15, 15, 15], backgroundColor: ['#e67e22', '#d35400', '#f39c12', '#bdc3c7'] }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+
+        // 4. Price Vaisselle
+        new Chart(document.getElementById('vaissellePrice').getContext('2d'), {
+            type: 'bar',
+            indexAxis: 'y',
+            data: {
+                labels: ['Isis (650ml)', 'Oni (1.25L)', 'OLGA (750ml)', 'OLGA (5L)'],
+                datasets: [{ label: 'DA/L', data: window.DATA_PRIX_VAISSELLE || [300, 180, 200, 84], backgroundColor: '#d35400' }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+
+        // Mettre à jour les labels de prix (Optionnel, pour les tableaux)
+        if (document.getElementById("prix-isis-3l")) document.getElementById("prix-isis-3l").innerText = window.PRIX_ISIS_3L || "880 DA";
+
+    </script>
+    <!-- HOME BUTTON -->
+    <a href="../00_Portal/home_olga.html" class="home-btn" title="Retour Accueil">
+        <i class="fas fa-home"></i>
+    </a>
+</body>
+
+</html>

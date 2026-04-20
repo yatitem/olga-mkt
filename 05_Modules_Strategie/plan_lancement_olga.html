@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan de Lancement Opérationnel - OLGA LESSIVE</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="../01_Core/olga_theme.css">
+    <script src="../01_Core/olga_config.js"></script>
+    <script src="../01_Core/olga_auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            OLGA_AUTH.requireRole('admin');
+        });
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Spécifique au Plan de Lancement - Code Couleurs Sections */
+        .tab-link[onclick*="Kpi"].active {
+            color: #334155;
+            border-bottom-color: #334155;
+        }
+
+        .tab-link[onclick*="Production"].active {
+            color: #ef4444;
+            border-bottom-color: #ef4444;
+        }
+
+        .tab-link[onclick*="Commercial"].active {
+            color: #10b981;
+            border-bottom-color: #10b981;
+        }
+
+        .tab-link[onclick*="Finance"].active {
+            color: #f59e0b;
+            border-bottom-color: #f59e0b;
+        }
+
+        .sub-header {
+            text-align: center;
+            color: #64748b;
+            margin-top: -10px;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        /* Specific Badges */
+        .badge {
+            padding: 5px 10px;
+            border-radius: 99px;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        .badge-blue {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-green {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-orange {
+            background-color: #ffedd5;
+            color: #9a3412;
+        }
+
+        .badge-red {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .big-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .small-label {
+            color: #64748b;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>🚀 Plan de Lancement Opérationnel - OLGA LESSIVE</h1>
+        <div class="sub-header">Zone Pilote : Dely Ibrahim - Ouled Fayet - Chéraga (200 POS)</div>
+
+        <div class="tabs">
+            <button class="tab-link active" onclick="openTab(event, 'Kpi')">📊 SYNTHÈSE (KPI)</button>
+            <button class="tab-link" onclick="openTab(event, 'Production')">🏭 PRODUCTION & STOCK</button>
+            <button class="tab-link" onclick="openTab(event, 'Commercial')">🗺️ ROUTE COMMERCIALE</button>
+            <button class="tab-link" onclick="openTab(event, 'Finance')">💰 PROJECTIONS VENTES</button>
+        </div>
+
+        <!-- KPI TAB -->
+        <div id="Kpi" class="tab-content active">
+            <div class="header-section" style="background: linear-gradient(135deg, #34495e, #2c3e50);">
+                <h1>📊 Vue d'Ensemble du Lancement</h1>
+                <p>Objectifs Trimestriels : Activations, Ventes et Pénétration.</p>
+            </div>
+
+            <div class="grid">
+                <div class="card" style="text-align:center;">
+                    <span class="small-label">Objectif CA (Trimestre 1)</span>
+                    <div class="big-number" style="color:#27ae60;">6.3 Million DA</div>
+                    <p style="color:grey;">Sur 200 Points de Vente</p>
+                </div>
+                <div class="card" style="text-align:center;">
+                    <span class="small-label">Objectif Volume (Trimestre 1)</span>
+                    <div class="big-number" style="color:#2980b9;">15,000 Unités</div>
+                    <p style="color:grey;">(3L: 9.7k | 5L: 3.6k | 10L: 1.6k)</p>
+                </div>
+                <div class="card" style="text-align:center;">
+                    <span class="small-label">Taux Pénétration</span>
+                    <div class="big-number" style="color:#e67e22;">85 %</div>
+                    <p style="color:grey;">Cible à M+3 (170 POS Actifs)</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📈 Courbe d'Acquisition (Prévisions)</h2>
+                <div style="height:300px;">
+                    <canvas id="kpiChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRODUCTION TAB -->
+        <div id="Production" class="tab-content">
+            <div class="header-section" style="background: linear-gradient(135deg, #c0392b, #e74c3c);">
+                <h1>🏭 Plan de Production & Stock de Démarrage</h1>
+                <p>Besoins pour assurer le "Pack Implantation" sur 200 POS sans rupture.</p>
+            </div>
+
+            <div class="card">
+                <h2>📦 Stock de Sécurité (Lancement J-0)</h2>
+                <table>
+                    <thead>
+                        <tr style="background-color: #fadbd8; color: #c0392b;">
+                            <th>Format</th>
+                            <th>Pack Implantation (par Magasin)</th>
+                            <th>Volume Total Requis</th>
+                            <th>Océan (50%)</th>
+                            <th>Marseille (30%)</th>
+                            <th>Fleur (20%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>3 Litres</strong></td>
+                            <td>12 Unités (3 cartons)</td>
+                            <td class="highlight" style="font-size:1.2em;">2,400 Unités</td>
+                            <td>1,200</td>
+                            <td>720</td>
+                            <td>480</td>
+                        </tr>
+                        <tr>
+                            <td><strong>5 Litres</strong></td>
+                            <td>6 Unités (2 cartons)</td>
+                            <td class="highlight" style="font-size:1.2em;">1,200 Unités</td>
+                            <td>600</td>
+                            <td>360</td>
+                            <td>240</td>
+                        </tr>
+                        <tr>
+                            <td><strong>10 Litres</strong></td>
+                            <td>2 Unités (Test)</td>
+                            <td class="highlight" style="font-size:1.2em;">400 Unités</td>
+                            <td>200</td>
+                            <td>120</td>
+                            <td>80</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="grid" style="margin-top:20px;">
+                <div class="card">
+                    <h2>📋 Besoins Matières Sèches (Trimestre 1)</h2>
+                    <ul>
+                        <li><strong>Bidons 3L :</strong> ~ 10,000 unités (Prévoir gâche)</li>
+                        <li><strong>Bidons 5L :</strong> ~ 4,000 unités</li>
+                        <li><strong>Bidons 10L :</strong> ~ 1,800 unités</li>
+                        <li><strong>Etiquettes :</strong> 16,000 jeux complets (Stock mini)</li>
+                        <li><strong>Cartons :</strong> 3,500 cartons (Calcul mixte 3L/5L)</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h2>🧪 Mix Parfums (Recommendation production)</h2>
+                    <canvas id="mixParfumChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMMERCIAL TAB -->
+        <div id="Commercial" class="tab-content">
+            <div class="header-section" style="background: linear-gradient(135deg, #27ae60, #2ecc71);">
+                <h1>🗺️ Feuille de Route Commerciale</h1>
+                <p>Planning d'attaque par zone géographique (S1 à S4).</p>
+            </div>
+
+            <div class="card">
+                <h2>🗓️ Planning Hebdomadaire</h2>
+                <table>
+                    <thead>
+                        <tr style="background-color: #d5f5e3; color: #1e8449;">
+                            <th>Semaine</th>
+                            <th>Zone Cible</th>
+                            <th>Objectif (POS)</th>
+                            <th>Produit Focus</th>
+                            <th>Action Prioritaire</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>S1 & S2</strong></td>
+                            <td><span class="badge badge-blue">Dely Ibrahim</span></td>
+                            <td>80 POS</td>
+                            <td><strong>Pack Complet</strong></td>
+                            <td>"Opération Commando". Dépôt-Vente si hésitation ("Risque Zéro"). Implantation Centre +
+                                Bois des Cars.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>S3</strong></td>
+                            <td><span class="badge badge-orange">Ouled Fayet</span></td>
+                            <td>70 POS</td>
+                            <td><strong>5L Famille</strong></td>
+                            <td>Cible Habitation Dense (AADL, Plateau). Focus 5L économique pour familles.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>S4</strong></td>
+                            <td><span class="badge badge-red">Chéraga</span></td>
+                            <td>50 POS</td>
+                            <td><strong>10L Pro</strong></td>
+                            <td>Cible Villas / Gros Conso (Amara, Zouaoua). Placer le 10L en tête de gondole.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="grid" style="margin-top:20px;">
+                <div class="card">
+                    <h2>🗣️ Argumentaire Flash (Pitch)</h2>
+                    <p><strong>1. Marge Détaillant :</strong> "Avec LIFE tu gagnes 40 DA. Avec OLGA tu gagnes 110 DA. Tu
+                        vends 3x moins pour gagner autant."</p>
+                    <p><strong>2. Qualité :</strong> "C'est la formule Pro adaptée pour la maison. Teste le 3L, si la
+                        cliente n'aime pas je te rembourse."</p>
+                    <p><strong>3. Gamme Complète :</strong> "Prends le 3L pour le volume, et le 10L pour tes gros
+                        clients (Villas). Ça fait monter ton panier moyen."</p>
+                </div>
+                <div class="card">
+                    <h2>🎁 Offre de Lancement</h2>
+                    <p>Pour tout pack implantation (15k DA) commandé :</p>
+                    <ul>
+                        <li>✅ <strong>PLV Offerte</strong> (Stop-rayon + Hand-tag).</li>
+                        <li>✅ <strong>Echantillons</strong> (12x 250ml gratuits à distribuer aux bons clients).</li>
+                        <li>✅ <strong>Droit de Reprise</strong> (Garantie Satisfait ou Repris sous 15 jours).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- FINANCE TAB -->
+        <div id="Finance" class="tab-content">
+            <div class="header-section" style="background: linear-gradient(135deg, #f39c12, #d35400);">
+                <h1>💰 Projections Ventes & Marges</h1>
+                <p>Simulation financière sur 3 mois (Hypothèse réaliste).</p>
+            </div>
+
+            <div class="card">
+                <h2>💵 Simulation Trimestrielle</h2>
+                <table>
+                    <thead>
+                        <tr style="background-color: #fdebd0; color: #d35400;">
+                            <th>Mois</th>
+                            <th>Magasins Actifs</th>
+                            <th>Vol. 3L</th>
+                            <th>Vol. 5L</th>
+                            <th>Vol. 10L</th>
+                            <th>CA Est. (TTC)</th>
+                            <th>Marge Brute (Est.)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Mois 1 (Lancement)</strong></td>
+                            <td>100</td>
+                            <td>1,920</td>
+                            <td>720</td>
+                            <td>320</td>
+                            <td><strong>1,253,600 DA</strong></td>
+                            <td>313,400 DA</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Mois 2 (Ancrage)</strong></td>
+                            <td>140</td>
+                            <td>3,360</td>
+                            <td>1,260</td>
+                            <td>560</td>
+                            <td><strong>2,193,800 DA</strong></td>
+                            <td>548,450 DA</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Mois 3 (Croisière)</strong></td>
+                            <td>170</td>
+                            <td>4,488</td>
+                            <td>1,683</td>
+                            <td>748</td>
+                            <td class="highlight" style="color:#d35400; font-size:1.1em;">2,930,290 DA</td>
+                            <td>732,572 DA</td>
+                        </tr>
+                        <tr style="background-color: #fee; border-top: 2px solid #d35400;">
+                            <td><strong>TOTAL CUMULÉ</strong></td>
+                            <td>-</td>
+                            <td><strong>9,768</strong></td>
+                            <td><strong>3,663</strong></td>
+                            <td><strong>1,628</strong></td>
+                            <td class="highlight" style="color:#c0392b; font-size:1.3em;">6,377,690 DA</td>
+                            <td><strong>~ 1.6 M DA</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Gestion des Onglets
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+                tabcontent[i].className = tabcontent[i].className.replace(" active", "");
+            }
+            tablinks = document.getElementsByClassName("tab-link");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            document.getElementById(tabName).className += " active";
+            evt.currentTarget.className += " active";
+        }
+
+        // Charts
+        const ctxKpi = document.getElementById('kpiChart').getContext('2d');
+        const kpiChart = new Chart(ctxKpi, {
+            type: 'line',
+            data: {
+                labels: ['Mois 1', 'Mois 2', 'Mois 3'],
+                datasets: [{
+                    label: 'CA Mensuel (Millions DA)',
+                    data: [1.25, 2.19, 2.93],
+                    borderColor: '#27ae60',
+                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'POS Actifs',
+                    data: [100, 140, 170],
+                    borderColor: '#3498db',
+                    backgroundColor: 'transparent',
+                    yAxisID: 'y1',
+                    borderDash: [5, 5]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: 'CA (M DA)' } },
+                    y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'Points de Vente' } }
+                }
+            }
+        });
+
+        const ctxMix = document.getElementById('mixParfumChart').getContext('2d');
+        const mixChart = new Chart(ctxMix, {
+            type: 'doughnut',
+            data: {
+                labels: ['Fraîcheur Océan', 'Savon Marseille', 'Fleur Printemps'],
+                datasets: [{
+                    data: [50, 30, 20],
+                    backgroundColor: ['#3498db', '#ecf0f1', '#e91e63'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+    </script>
+    <!-- HOME BUTTON -->
+    <a href="../00_Portal/home_olga.html" class="home-btn" title="Retour Accueil">
+        <i class="fas fa-home"></i>
+    </a>
+</body>
+
+</html>

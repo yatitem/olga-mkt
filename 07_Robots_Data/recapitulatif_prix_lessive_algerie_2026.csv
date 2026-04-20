@@ -1,0 +1,29 @@
+Marque,Segment,Format,Prix Public (DA),Prix Grossiste (DA),Prix Distributeur (DA),Commentaire
+Ariel (Henkel),Premium,3L,"1050 - 1200",900 - 950,~ 800,Leader Premium
+Omo (Unilever),Premium,3L,"980 - 1100",850 - 900,~ 750,Challenger Premium
+Isis (Henkel),Mid-Market,3L,"850 - 900",720 - 760,~ 640,Standard marché
+Bingo (Hayat),Mid-Market,3L,"820 - 880",700 - 740,~ 620,Standard marché
+Amir,Local Challenger,2.5L,680,580,~ 500,Format intermédiaire
+Force Express,Local Challenger,3L,"550 - 650",470 - 520,~ 420,Entre-deux
+Topsil,Économique,3L,"450 - 500",380 - 410,~ 340,Entrée de gamme
+Topsil,Économique,8L,1150,980,~ 850,Gros volume éco
+Life,Hard Discount,3L,"440 - 480",370 - 400,~ 330,Référence Hard Discount
+Life,Hard Discount,10L,"1100 - 1200",950 - 1000,~ 850,
+Vavo,Hard Discount,3L,"440 - 460",360 - 380,~ 315,Très agressif
+Vavo,Hard Discount,10L,1100,900 - 950,~ 800,
+Dako,Hard Discount,3L,"440 - 460",360 - 380,~ 315,Même segment que Vavo
+Dako,Hard Discount,10L,"1100 - 1150",920 - 960,~ 820,
+Ours Blanc,Hard Discount,3L,"420 - 480",360 - 390,~ 320,Marque historique locale
+OLGA (Nouveau),Lancement,3L,*,340,*,RUPTURE PRIX (-40 DA vs marché)
+OLGA (Nouveau),Lancement,5L,*,450,*,Ecrasé tarifaire
+OLGA (Nouveau),Lancement,10L,*,800,*,IMBATTABLE (-150 DA vs marché)
+OLGA (Sanibon),Sol,1L,*,100,*,Aligné
+OLGA (Vaisselle),Vaisselle,2L,*,200,*,Prix d'appel
+OLGA (Savon Liq),Hygiène,5L,*,330,*,Vrac pro ?
+,,,,,,
+[SCRAPING CoursesNet.dz] (13/02/2026),,,,,,
+Dorilflor (Local),Eco,3L,580,,,(193 DA/L)
+Test (Local),Eco,2.5L,560,,,(224 DA/L)
+Aigle (Local),Mid,2.5L,690,,,(276 DA/L)
+Bingo (Hayat),Mid,2.5L,795,,,(318 DA/L)
+Le Chat (Henkel),Premium,2.5L,1060,,,(424 DA/L)

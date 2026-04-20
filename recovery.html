@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head><title>OLGA Recovery</title>
+<style>body{font-family:monospace;background:#0a0a0a;color:#00ff00;padding:20px;} button{background:#333;color:#fff;padding:10px;border:none;cursor:pointer;margin:5px;border-radius:4px;}</style>
+</head>
+<body>
+<h2>🔍 OLGA — État Supabase + Recovery</h2>
+<button onclick="runDiag()">1. Vérifier état Supabase</button>
+<button onclick="recoverFromBackup()">2. Voir Backups disponibles</button>
+<div id="out" style="margin-top:20px; white-space:pre; font-size:12px; max-height:80vh; overflow:auto;"></div>
+
+<script>
+const SUPA_URL = 'https://hndsnoindoixrigcbivd.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhuZHNub2luZG9peHJpZ2NiaXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2Mjc4NDAsImV4cCI6MjA4ODIwMzg0MH0.TghbRf1CyNb2Ikei2W-D1nQ7qS8IO7ZpIeuEwt4Co0Q';
+let sb = null;
+const out = () => document.getElementById('out');
+const log = (t) => { out().textContent += t + '\n'; };
+
+async function loadSDK() {
+    return new Promise(resolve => {
+        if (window.supabase) { sb = supabase.createClient(SUPA_URL, SUPA_KEY); return resolve(); }
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        document.head.appendChild(s);
+        s.onload = () => { sb = supabase.createClient(SUPA_URL, SUPA_KEY); resolve(); };
+    });
+}
+
+async function runDiag() {
+    out().textContent = '';
+    await loadSDK();
+
+    const tables = ['clients', 'orders', 'payments', 'visits', 'objectifs', 'users'];
+    for (const t of tables) {
+        const { data, error } = await sb.from(t).select('*');
+        if (error) log(`❌ ${t}: ERREUR - ${error.message}`);
+        else log(`✅ ${t}: ${data.length} enregistrements`);
+    }
+
+    log('\n=== DÉTAIL CLIENTS ===');
+    const { data: clients } = await sb.from('clients').select('id, nom, type, commune, wilaya, commercial_id, commercial_nom');
+    if (!clients || clients.length === 0) {
+        log('⚠️  TABLE CLIENTS VIDE !');
+    } else {
+        clients.forEach(c => {
+            log(`  [${c.type||'?'}] ID:${c.id} | ${c.nom} | ${c.commune||'-'} | comm_id: ${c.commercial_id||'NULL'}`);
+        });
+    }
+}
+
+function recoverFromBackup() {
+    log('ℹ️  Pour restaurer, copiez les données clients depuis :\n  E:\\ANTIGRAVITY\\OLGA MKT\\99_Backups\\...\n  et utilisez le Back-Office (Nouveau Client) pour les resaisir.\n  Ou partagez le contenu du localStorage avant la purge.');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+# Fichiers à exclure du déploiement Netlify
+_ARCHIVE/
+*.bat
+*.gs
+*.md
+07_Robots_Data/
+08_Docs_Strategiques/
+LANCER_SAUVEGARDE_SUPABASE.bat
+GUIDE_UTILISATEUR_OLGA.md
+products_payload.json
+users_payload.json

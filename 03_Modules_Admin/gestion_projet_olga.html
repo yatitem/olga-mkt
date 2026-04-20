@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion de Projet OLGA 2026</title>
+    <link rel="stylesheet" href="../01_Core/olga_theme.css">
+    <script src="../01_Core/olga_config.js"></script>
+    <script src="../01_Core/olga_auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            OLGA_AUTH.requireRole(); // Tous les rôles autorisés mais session requise
+        });
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Specific styles if needed, otherwise olga_theme.css handles it */
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="header-section" style="background: linear-gradient(135deg, #8e44ad, #2c3e50);">
+            <h1>🚀 Roadmap & Gestion de Projet OLGA 2026</h1>
+            <p>Pilotage centralisé des actions stratégiques : Production, Marketing, Vente et Distribution.</p>
+        </div>
+
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+
+            <!-- COLONNE 1 : URGENT (Cette Semaine) -->
+            <div class="card" style="border-top: 5px solid #c0392b;">
+                <h2 style="color:#c0392b;">🔥 URGENT / PRIORITAIRE</h2>
+
+                <div style="margin-bottom:15px; background:#fadbd8; padding:10px; border-radius:5px;">
+                    <strong>1. Validation Prix & Marges</strong>
+                    <p style="margin:5px 0 0 0; font-size:0.9em;">Valider définitivement la grille tarifaire (Sup A/B)
+                        pour impression des catalogues.</p>
+                    <div style="margin-top:5px;"><span style="color:#c0392b; font-weight:bold;">Statut: En Cours</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom:15px; background:#fadbd8; padding:10px; border-radius:5px;">
+                    <strong>2. Outil Prise de Commande</strong>
+                    <p style="margin:5px 0 0 0; font-size:0.9em;">Déployer la solution "Master Sheet" pour centraliser
+                        les commandes vendeurs via Smartphone.</p>
+                    <div style="margin-top:5px;"><span style="color:#c0392b; font-weight:bold;">Statut: À Faire</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom:15px; background:#fadbd8; padding:10px; border-radius:5px;">
+                    <strong>3. Constitution Base POS</strong>
+                    <p style="margin:5px 0 0 0; font-size:0.9em;">Finaliser la liste des 100 premiers clients cibles
+                        (Supérettes A+) pour le lancement.</p>
+                    <div style="margin-top:5px;"><span style="color:#27ae60; font-weight:bold;">Statut: Fait
+                            (80%)</span></div>
+                </div>
+            </div>
+
+            <!-- COLONNE 2 : MOYEN TERME (Ce Mois) -->
+            <div class="card" style="border-top: 5px solid #f39c12;">
+                <h2 style="color:#f39c12;">📅 MOYEN TERME</h2>
+
+                <div style="margin-bottom:15px; background:#fef9e7; padding:10px; border-radius:5px;">
+                    <strong>1. Production & Stock</strong>
+                    <p style="margin:5px 0 0 0; font-size:0.9em;">Constituer le stock tampon pour les produits à forte
+                        rotation (Lessive 3L, Vaisselle 750ml).</p>
+                </div>
+
+                <div style="margin-bottom:15px; background:#fef9e7; padding:10px; border-radius:5px;">
+                    <strong>2. Marketing Opérationnel</strong>
+                    <p style="margin:5px 0 0 0; font-size:0.9em;">Lancer la campagne sur les réseaux sociaux + Création
+                        des supports PLV (Flyers, Affiches).</p>
+                </div>
+
+                <div style="margin-bottom:15px; background:#fef9e7; padding:10px; border-radius:5px;">
+                    <strong>3. Recrutement & Formation</strong>
+                    <p style="margin:5px 0 0 0; font-size:0.9em;">Briefing final de l'équipe commerciale sur
+                        l'argumentaire "Anti-Concurrence".</p>
+                </div>
+            </div>
+
+            <!-- COLONNE 3 : SUIVI & DISTRIBUTION -->
+            <div class="card" style="border-top: 5px solid #2980b9;">
+                <h2 style="color:#2980b9;">🚚 DISTRIBUTION & SUIVI</h2>
+
+                <div style="margin-bottom:15px; background:#d6eaf8; padding:10px; border-radius:5px;">
+                    <strong>1. Optimisation Tournées</strong>
+                    <p style="margin:5px 0 0 0; font-size:0.9em;">Utiliser le "Simulateur Loading" pour maximiser le
+                        remplissage des camions.</p>
+                </div>
+
+                <div style="margin-bottom:15px; background:#d6eaf8; padding:10px; border-radius:5px;">
+                    <strong>2. Veille Robot</strong>
+                    <p style="margin:5px 0 0 0; font-size:0.9em;">Surveiller les promos concurrentes chaque semaine via
+                        le Robot Python.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- HOME BUTTON -->
+    <a href="../00_Portal/home_olga.html" class="home-btn" title="Retour Accueil">
+        <i class="fas fa-home"></i>
+    </a>
+</body>
+
+</html>

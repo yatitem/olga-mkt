@@ -1,0 +1,26 @@
+Catégorie;Indicateur;Valeur / Description;Tendance 2026;Source / Fiabilité
+MARCHÉ GLOBAL;Taille du Marché Estimée (Valeur);~45 - 55 Milliards DA;Croissance +5%;ESTIMATION (Basée sur consommation ménages)
+MARCHÉ GLOBAL;Volume Annuel Estimé;~300 000 - 350 000 Tonnes;Stable (+2%);ESTIMATION
+MARCHÉ GLOBAL;Part de Marché Poudre (Volume);60 - 65%;Baisse lente (-2% / an);OBSERVÉ (Dominance historique)
+MARCHÉ GLOBAL;Part de Marché Liquide (Volume);35 - 40%;Hausse soutenue (+8% / an);OBSERVÉ (Équipement machine + Praticité)
+;;;;
+CONCURRENCE;Acteur;Marques Clés;Positionnement;Part de Marché Estimée (Volume)
+Henkel (Leader);Ariel, Isis, Le Chat;Premium & Mass Market;~35 - 40%;Leader historique, très forte distribution
+Unilever (Challenger);Omo, Surf;Premium & Innovation;~20 - 25%;Fort en urbain & marketing
+Hayat DHC (Challenger Agressif);Bingo, Test;Rapport Qualité/Prix;~15 - 20%;Croissance rapide (agressivité promo)
+Locaux & Autres;Amir, Force Express, Startups (OLGA);Entrée de gamme / Spécialistes;~20%;Fragmenté mais dynamique
+;;;;
+PRIX (BENCHMARK 2025);Format;Marque;Prix Moyen Rayon (DA);Prix au Litre/Kg (DA)
+Lessive Liquide (Premium);Bidon 3L;Ariel / Omo;950 - 1100 DA;316 - 366 DA
+Lessive Liquide (Standard);Bidon 3L;Isis / Bingo;800 - 900 DA;266 - 300 DA
+Lessive Liquide (Éco/Local);Bidon 3L;Marques Locales;450 - 550 DA;150 - 183 DA
+Lessive Liquide (PRO / 10L);Bidon 10L;Life / Vavo / Dako;780 - 1000 DA;78 - 100 DA
+Lessive Poudre (Machine);Sac 5Kg;Ariel / Omo;1400 - 1600 DA;280 - 320 DA
+Lessive Poudre (Machine);Sac 5Kg;Isis / Test;1100 - 1300 DA;220 - 260 DA
+Lessive Main;Paquet 300g;Isis / Omo;70 - 90 DA;230 - 300 DA
+;;;;
+DISTRIBUTION;Canal;Poids (Volume);Avantages;Inconvénients
+Circuit Traditionnel;Supérettes, Épiceries;60 - 70%;Paiement Cash, Prescription vendeur;Logistique complexe (capillarité)
+Grossistes;Semmar, El Hamiz, Régionaux;20 - 25%;Volumes massifs, Couverture nationale;Pression sur les marges, Guerre des prix
+Grande Distribution (GMS);Uno, Ardis, Carrefour;10 - 15%;Image de marque, Visibilité;Délais de paiement longs, Coûts d'entrée
+En Ligne / Marketplace;Ouedkniss, Facebook;5% (en croissance sur le 10L);Contact direct, Cash on Delivery;Logistique du dernier kilomètre

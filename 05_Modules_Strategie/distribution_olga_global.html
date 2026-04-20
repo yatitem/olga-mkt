@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base Distribution OLGA - Données Réelles Uniquement</title>
+    <link rel="stylesheet" href="../01_Core/olga_theme.css">
+    <script src="../01_Core/olga_config.js"></script>
+    <script src="../01_Core/olga_auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            OLGA_AUTH.requireRole('admin');
+        });
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f6f9;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        .sub-header {
+            text-align: center;
+            color: #e74c3c;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 20px;
+        }
+
+        .add-btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .add-btn:hover {
+            background-color: #2ecc71;
+        }
+
+        #addForm {
+            display: none;
+            width: 100%;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .form-input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .save-btn {
+            background-color: #2980b9;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #34495e;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .prio-haute {
+            background-color: #ffebee;
+            color: #c0392b;
+            border: 1px solid #ef9a9a;
+        }
+
+        .prio-moyenne {
+            background-color: #fff3e0;
+            color: #e67e22;
+            border: 1px solid #ffcc80;
+        }
+
+        .prio-cible {
+            background-color: #e8f5e9;
+            color: #27ae60;
+            border: 1px solid #a5d6a7;
+        }
+
+        .prio-nb {
+            background-color: #eee;
+            color: #7f8c8d;
+            border: 1px solid #ddd;
+        }
+
+        .reco {
+            font-style: italic;
+            color: #2980b9;
+        }
+
+        .stats {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📍 Base Distribution OLGA (Vérifiée)</h1>
+        <div class="sub-header">⚠️ Données Réelles Uniquement (Pas de simulation)</div>
+
+        <div class="controls">
+            <div class="filter-group">
+                <select id="communeFilter" onchange="filterTable()">
+                    <option value="All">Toutes les Communes</option>
+                    <option value="Dely Ibrahim">Dely Ibrahim</option>
+                    <option value="Ouled Fayet">Ouled Fayet</option>
+                    <option value="Chéraga">Chéraga</option>
+                </select>
+                <select id="quartierFilter" onchange="filterTable()">
+                    <option value="All">Tous les Quartiers</option>
+                    <option value="Centre">Centre</option>
+                    <option value="Bois des Cars">Bois des Cars</option>
+                    <option value="Ain Allah">Ain Allah</option>
+                    <option value="Grands Vents">Grands Vents</option>
+                    <option value="Plateau">Plateau (O.Fayet)</option>
+                    <option value="AADL">AADL (O.Fayet)</option>
+                    <option value="Amara">Amara (Chéraga)</option>
+                    <option value="Zouaoua">Zouaoua (Chéraga)</option>
+                    <option value="Bouchaoui">Bouchaoui</option>
+                </select>
+            </div>
+
+            <button class="add-btn" onclick="toggleForm()">➕ Ajouter un POS Manuellement</button>
+
+            <div id="addForm">
+                <h3 style="margin-top:0; color:#2c3e50;">Nouveau Point de Vente</h3>
+                <div class="form-grid">
+                    <input type="text" id="newName" class="form-input" placeholder="Nom (ex: Supérette Stop)" required>
+                    <select id="newType" class="form-input">
+                        <option value="Supérette">Supérette</option>
+                        <option value="Alimentation">Alimentation</option>
+                        <option value="Supermarché">Supermarché</option>
+                        <option value="Grossiste">Grossiste</option>
+                        <option value="Kiosque">Kiosque</option>
+                    </select>
+                    <select id="newCommune" class="form-input">
+                        <option value="Dely Ibrahim">Dely Ibrahim</option>
+                        <option value="Ouled Fayet">Ouled Fayet</option>
+                        <option value="Chéraga">Chéraga</option>
+                    </select>
+                    <input type="text" id="newQuartier" class="form-input" placeholder="Quartier (ex: Centre)">
+                    <select id="newPrio" class="form-input">
+                        <option value="HAUTE">Priorité HAUTE</option>
+                        <option value="MOYENNE">Priorité MOYENNE</option>
+                        <option value="CIBLE">CIBLE (Grossiste)</option>
+                        <option value="FAIBLE">Priorité FAIBLE</option>
+                    </select>
+                    <input type="text" id="newReco" class="form-input" placeholder="Reco (ex: Pack 10L)">
+                </div>
+                <button class="save-btn" onclick="addPos()">Enregistrer le POS</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <table id="distribTable">
+                <thead>
+                    <tr>
+                        <th>Nom du Point de Vente (Vérifié)</th>
+                        <th>Type</th>
+                        <th>Commune</th>
+                        <th>Quartier / Zone</th>
+                        <th>Priorité</th>
+                        <th>Recommandations OLGA</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Centre">
+                        <td><strong>Supérette Delta Market</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Gros flux. Pack Implantation Complet.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Centre">
+                        <td><strong>Supérette Melka Market</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Clientèle fidèle. Focus Fidelisation.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Centre">
+                        <td><strong>Casa Supermarché</strong></td>
+                        <td>Supermarché</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Tête de gondole 10L Lessive.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Bois des Cars">
+                        <td><strong>Les Deux Jumeaux Market</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Bois des Cars</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Gamme standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Ain Allah">
+                        <td><strong>Market Lbahja</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Ain Allah</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Test 3L Océan.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Grands Vents">
+                        <td><strong>Supérette Billel</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Grands Vents</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Produits d'appel.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Centre">
+                        <td><strong>Happy Shop</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">PLV Stop-Rayon.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Bois des Cars">
+                        <td><strong>Freeware Market</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Bois des Cars</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Dégraissant & Vaisselle.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Grands Vents">
+                        <td><strong>Supermarché Hssinou</strong></td>
+                        <td>Supermarché</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Grands Vents</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Volume 5L & 10L.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Ain Allah">
+                        <td><strong>Family Space</strong></td>
+                        <td>Supermarché</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Ain Allah</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Cible Familles.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Centre">
+                        <td><strong>Vivast Supermarché</strong></td>
+                        <td>Supermarché</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Partenariat Image.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Centre">
+                        <td><strong>Sup Mini Market</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Dépannage.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Bois des Cars">
+                        <td><strong>Stach Market</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Bois des Cars</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Ain Allah">
+                        <td><strong>Mak Market</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Ain Allah</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Grands Vents">
+                        <td><strong>La Vida Market</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Grands Vents</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Nouveau quartier.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Centre">
+                        <td><strong>Akram & Anes Market</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Centre">
+                        <td><strong>Bimzy Market</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Jeune clientèle.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Bois des Cars">
+                        <td><strong>Super Market Abou Kamal</strong></td>
+                        <td>Supermarché</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Bois des Cars</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Gros panier moyen.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Sebala">
+                        <td><strong>Supérette Sebala</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Sebala</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Zone limitrophe.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Centre">
+                        <td><strong>Supirate Nassim</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Ancienneté.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Centre">
+                        <td><strong>Swedish Market</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Produits Import. Ht de gamme.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Ain Allah">
+                        <td><strong>Supérette Adam</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Ain Allah</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Grands Vents">
+                        <td><strong>Promo Shop</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Grands Vents</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Sensible au prix.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Centre">
+                        <td><strong>Trésors de la nature</strong></td>
+                        <td>Épicerie Fine</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-cible">CIBLE</span></td>
+                        <td class="reco">Produits Bio/Naturels uniquement.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Bois des Cars">
+                        <td><strong>Market 123</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Bois des Cars</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Centre">
+                        <td><strong>Sainsbury's Market</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Nom international (Image).</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Résidence Sahraoui">
+                        <td><strong>City Market</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Résidence Sahraoui</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Captif Résidence.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Dely Ibrahim" data-quartier="Route Principale">
+                        <td><strong>Stop & Shop</strong></td>
+                        <td>Supérette</td>
+                        <td>Dely Ibrahim</td>
+                        <td>Route Principale</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Visibilité max.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Centre">
+                        <td><strong>Superette des frères Belkacemi</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Grosses rotations.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Plateau">
+                        <td><strong>Alimentation générale Samir</strong></td>
+                        <td>Alimentation</td>
+                        <td>Ouled Fayet</td>
+                        <td>Plateau</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Dépannage.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Plateau">
+                        <td><strong>Épicerie Abdelah</strong></td>
+                        <td>Alimentation</td>
+                        <td>Ouled Fayet</td>
+                        <td>Plateau</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Quartier.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="AADL">
+                        <td><strong>Supérette Mehdi</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>AADL</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Densité AADL.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Centre">
+                        <td><strong>Supérette Rayen</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Plateau">
+                        <td><strong>Mini sup Malek</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Plateau</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Petits formats.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Centre">
+                        <td><strong>Alimentation Générale Roudji</strong></td>
+                        <td>Alimentation</td>
+                        <td>Ouled Fayet</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="AADL">
+                        <td><strong>Supérette Mouad</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>AADL</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Réassort régulier.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Plateau">
+                        <td><strong>Épicerie Alae</strong></td>
+                        <td>Alimentation</td>
+                        <td>Ouled Fayet</td>
+                        <td>Plateau</td>
+                        <td><span class="badge prio-nb">FAIBLE</span></td>
+                        <td class="reco">Petit flux.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Plateau">
+                        <td><strong>Supérette Rabeh Plateau</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Plateau</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Point de repère Plateau.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Centre">
+                        <td><strong>Alimentation Générale Zoheir</strong></td>
+                        <td>Alimentation</td>
+                        <td>Ouled Fayet</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Ancien.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="AADL">
+                        <td><strong>Supérette Zaaim</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>AADL</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Familles nombreuses.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Opéra">
+                        <td><strong>Houma Shop</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Opéra</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Nouveau quartier.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Centre">
+                        <td><strong>Épicerie Hamza & Salim</strong></td>
+                        <td>Alimentation</td>
+                        <td>Ouled Fayet</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Trafic piéton.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Village">
+                        <td><strong>Alimentation Chez Mouhoub</strong></td>
+                        <td>Alimentation</td>
+                        <td>Ouled Fayet</td>
+                        <td>Village</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Historique.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Plateau">
+                        <td><strong>Supérette Okba</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Plateau</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Bon emplacement.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="AADL">
+                        <td><strong>Superertt Labidi Hamza</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>AADL</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Gros potentiel lessive.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Centre">
+                        <td><strong>Mini Supérette Islem</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Dépannage.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Plateau">
+                        <td><strong>Supérette Bachir</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Plateau</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Centre">
+                        <td><strong>Supérette Nounou</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Village">
+                        <td><strong>El Andaloussia Chez Ami Chrif</strong></td>
+                        <td>Alimentation</td>
+                        <td>Ouled Fayet</td>
+                        <td>Village</td>
+                        <td><span class="badge prio-cible">CIBLE</span></td>
+                        <td class="reco">Influenceur local.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="AADL">
+                        <td><strong>Supérette Salim</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>AADL</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Zone Ind">
+                        <td><strong>Supérette et Grossiste Nateche</strong></td>
+                        <td>GROSSISTE</td>
+                        <td>Ouled Fayet</td>
+                        <td>Zone Ind</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Partenaire Distribution.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Plateau">
+                        <td><strong>Supérette Rabeh</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Plateau</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Référence.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Opéra">
+                        <td><strong>Supérette Twins Market</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Opéra</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Jeune.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Centre">
+                        <td><strong>Supérette Elhadj Rezki Shoop</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Clientèle âgée.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="AADL">
+                        <td><strong>Supérette Serine</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>AADL</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Plateau">
+                        <td><strong>OH Supérette</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Plateau</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Passage.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Opéra">
+                        <td><strong>Magasin Bio Green</strong></td>
+                        <td>Spécialisé</td>
+                        <td>Ouled Fayet</td>
+                        <td>Opéra</td>
+                        <td><span class="badge prio-nb">FAIBLE</span></td>
+                        <td class="reco">Niche.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Centre">
+                        <td><strong>Your Market</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Moderne.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="AADL">
+                        <td><strong>Supérette Faiz</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>AADL</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Plateau">
+                        <td><strong>Supérette Bournane</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Plateau</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Centre">
+                        <td><strong>Supérette Brothers</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Opéra">
+                        <td><strong>Supérette Royal</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Opéra</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Premium.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Village">
+                        <td><strong>Supérette Lyes-Mouloud</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Village</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Plateau">
+                        <td><strong>Magasin de Quartier aux Amandes</strong></td>
+                        <td>Alimentation</td>
+                        <td>Ouled Fayet</td>
+                        <td>Plateau</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Repère.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="AADL">
+                        <td><strong>Supérette Irat</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>AADL</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Centre">
+                        <td><strong>Supérette Fouad B</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Plateau">
+                        <td><strong>Supérette Sba</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Plateau</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="AADL">
+                        <td><strong>Alimentation Hichem Emilio</strong></td>
+                        <td>Alimentation</td>
+                        <td>Ouled Fayet</td>
+                        <td>AADL</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Jeunes.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Opéra">
+                        <td><strong>Supérette Pino</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Opéra</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Centre">
+                        <td><strong>Supérette Zahraa</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="Plateau">
+                        <td><strong>Supérette Ben Chrifa</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>Plateau</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Ouled Fayet" data-quartier="AADL">
+                        <td><strong>Supérette Fouzi</strong></td>
+                        <td>Supérette</td>
+                        <td>Ouled Fayet</td>
+                        <td>AADL</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Chéraga" data-quartier="Bouchaoui">
+                        <td><strong>Kheyar Supermarche Bouchaoui</strong></td>
+                        <td>Supermarché</td>
+                        <td>Chéraga</td>
+                        <td>Bouchaoui</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Incontournable Zone Ouest.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Chéraga" data-quartier="Centre">
+                        <td><strong>CASA Supermarché</strong></td>
+                        <td>Supermarché</td>
+                        <td>Chéraga</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Clientèle Aisée.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Chéraga" data-quartier="Centre">
+                        <td><strong>Boucherie Dziri</strong></td>
+                        <td>Boucherie/Alim</td>
+                        <td>Chéraga</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Complément Panier.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Chéraga" data-quartier="Amara">
+                        <td><strong>Sarl Fromagerie Procheese</strong></td>
+                        <td>Spécialisé</td>
+                        <td>Chéraga</td>
+                        <td>Amara</td>
+                        <td><span class="badge prio-nb">FAIBLE</span></td>
+                        <td class="reco">B2B.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Chéraga" data-quartier="Amara">
+                        <td><strong>Hyper Market Amara</strong></td>
+                        <td>Supermarché</td>
+                        <td>Chéraga</td>
+                        <td>Amara</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Gros Volumes 10L.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Chéraga" data-quartier="Amara">
+                        <td><strong>L'Olivier Market</strong></td>
+                        <td>Supérette</td>
+                        <td>Chéraga</td>
+                        <td>Amara</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Quartier Résidentiel.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Chéraga" data-quartier="Centre">
+                        <td><strong>Grossiste Alimentaire Centre</strong></td>
+                        <td>GROSSISTE</td>
+                        <td>Chéraga</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-cible">CIBLE</span></td>
+                        <td class="reco">Partenaire Majeur.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Chéraga" data-quartier="Zouaoua">
+                        <td><strong>Boucherie & Market Zouaoua</strong></td>
+                        <td>Supérette</td>
+                        <td>Chéraga</td>
+                        <td>Zouaoua</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Zone Villas / Riche.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Chéraga" data-quartier="Zouaoua">
+                        <td><strong>Supérette El Qods</strong></td>
+                        <td>Supérette</td>
+                        <td>Chéraga</td>
+                        <td>Zouaoua</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Chéraga" data-quartier="Amara">
+                        <td><strong>Alimentation Générale Amara</strong></td>
+                        <td>Alimentation</td>
+                        <td>Chéraga</td>
+                        <td>Amara</td>
+                        <td><span class="badge prio-moyenne">MOYENNE</span></td>
+                        <td class="reco">Standard.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Chéraga" data-quartier="Dunes">
+                        <td><strong>Supérette Les Dunes</strong></td>
+                        <td>Supérette</td>
+                        <td>Chéraga</td>
+                        <td>Dunes</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Zone dense.</td>
+                    </tr>
+
+                    <tr class="row-data" data-commune="Chéraga" data-quartier="Centre">
+                        <td><strong>Market Plaza</strong></td>
+                        <td>Supermarché</td>
+                        <td>Chéraga</td>
+                        <td>Centre</td>
+                        <td><span class="badge prio-haute">HAUTE</span></td>
+                        <td class="reco">Centre Commercial.</td>
+                    </tr>
+
+                </tbody>
+            </table>
+            <div class="stats" id="rowCount">Affichage de 84 points de vente réels.</div>
+        </div>
+    </div>
+
+    <script>
+        // --- GESTION DE LA PERSISTANCE (Database Locale) ---
+        var DB_KEY = "olga_distrib_db_v1";
+
+        // Chargement initial
+        document.addEventListener('DOMContentLoaded', function () {
+            loadSavedPOS();
+            filterTable(); // Apply filters immediately
+        });
+
+        function loadSavedPOS() {
+            var data = localStorage.getItem(DB_KEY);
+            if (data) {
+                var posList = JSON.parse(data);
+                posList.forEach(function (pos) {
+                    renderRow(pos, false); // false = append at top but don't save again
+                });
+            }
+        }
+
+        function savePOS(pos) {
+            var data = localStorage.getItem(DB_KEY);
+            var posList = data ? JSON.parse(data) : [];
+            posList.push(pos);
+            localStorage.setItem(DB_KEY, JSON.stringify(posList));
+        }
+
+        // --- FONCTIONS UI ---
+
+        function toggleForm() {
+            var f = document.getElementById('addForm');
+            f.style.display = (f.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function filterTable() {
+            var communeFilter = document.getElementById("communeFilter").value;
+            var quartierFilter = document.getElementById("quartierFilter").value;
+            var table = document.getElementById("distribTable");
+            var tr = table.getElementsByTagName("tr");
+            var count = 0;
+
+            // Start at 1 to skip Thead
+            for (var i = 1; i < tr.length; i++) {
+                var rowCommune = tr[i].getAttribute("data-commune");
+                var rowQuartier = tr[i].getAttribute("data-quartier");
+                var showRow = true;
+
+                if (communeFilter !== "All" && rowCommune !== communeFilter) showRow = false;
+                if (quartierFilter !== "All" && rowQuartier !== quartierFilter) showRow = false;
+
+                if (showRow) {
+                    tr[i].style.display = "";
+                    count++;
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+            document.getElementById("rowCount").innerText = "Affichage de " + count + " points de vente.";
+        }
+
+        function addPos() {
+            // 1. Get Values
+            var name = document.getElementById('newName').value;
+            var type = document.getElementById('newType').value;
+            var commune = document.getElementById('newCommune').value;
+            var quartier = document.getElementById('newQuartier').value || "Non spécifié";
+            var prio = document.getElementById('newPrio').value;
+            var reco = document.getElementById('newReco').value || "-";
+
+            if (!name) { alert("Veuillez entrer un nom !"); return; }
+
+            var newPos = {
+                name: name, type: type, commune: commune,
+                quartier: quartier, prio: prio, reco: reco
+            };
+
+            // 2. Render & Save
+            renderRow(newPos, true); // true = highlight animation
+            savePOS(newPos);
+
+            // 3. Reset Form
+            document.getElementById('newName').value = "";
+            document.getElementById('newQuartier').value = "";
+            document.getElementById('newReco').value = "";
+            alert("✅ Point de vente ajouté et sauvegardé !");
+        }
+
+        function renderRow(pos, highlight) {
+            var tableBody = document.querySelector("#distribTable tbody");
+            if (!tableBody) { console.error("Tbody not found"); return; }
+
+            var newRow = document.createElement("tr");
+            newRow.className = "row-data";
+            newRow.setAttribute("data-commune", pos.commune);
+            newRow.setAttribute("data-quartier", pos.quartier);
+
+            if (highlight) newRow.style.backgroundColor = "#d5f5e3"; // Green flash
+
+            var badgeClass = "prio-moyenne";
+            if (pos.prio === "HAUTE") badgeClass = "prio-haute";
+            if (pos.prio === "CIBLE") badgeClass = "prio-cible";
+            if (pos.prio === "FAIBLE") badgeClass = "prio-nb";
+
+            newRow.innerHTML = `
+                <td><strong>${pos.name}</strong> <small style='color:#27ae60'>(${highlight ? 'Nouveau' : 'Ajouté'})</small></td>
+                <td>${pos.type}</td>
+                <td>${pos.commune}</td>
+                <td>${pos.quartier}</td>
+                <td><span class="badge ${badgeClass}">${pos.prio}</span></td>
+                <td class="reco">${pos.reco}</td>
+            `;
+
+            // Insert at the very top of the table body (before Hardcoded rows)
+            if (tableBody.firstChild) {
+                tableBody.insertBefore(newRow, tableBody.firstChild);
+            } else {
+                tableBody.appendChild(newRow);
+            }
+
+            // Re-apply filters to ensure it's shown/hidden correctly
+            filterTable();
+        }
+    </script>
+    <!-- HOME BUTTON -->
+    <a href="../00_Portal/home_olga.html" class="home-btn" title="Retour Accueil">
+        <i class="fas fa-home"></i>
+    </a>
+</body>
+
+</html>

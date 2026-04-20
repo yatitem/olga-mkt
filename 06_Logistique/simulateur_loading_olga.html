@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚛 Simulateur de Chargement - OLGA</title>
+    <link rel="stylesheet" href="../01_Core/olga_theme.css">
+    <script src="../01_Core/olga_config.js"></script>
+    <script src="../01_Core/olga_auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            OLGA_AUTH.requireRole('admin');
+        });
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            color: #2980b9;
+            font-size: 1.2rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .result-box {
+            text-align: center;
+            padding: 20px;
+            background: #eaf2f8;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .big-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-container {
+            margin-top: 20px;
+        }
+
+        .progress-bar-bg {
+            background: #eee;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 5px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .bg-weight {
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+        }
+
+        .bg-vol {
+            background: linear-gradient(90deg, #3498db, #2980b9);
+        }
+
+        .danger {
+            background: linear-gradient(90deg, #e74c3c, #c0392b) !important;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8f9fa;
+        }
+
+        .consigne {
+            font-style: italic;
+            color: #7f8c8d;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            border-left: 3px solid #3498db;
+            padding-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>🚛 Simulateur Logistique (Compatible Maxi City)</h1>
+
+        <div class="grid">
+            <!-- CONFIGURATION -->
+            <div class="card">
+                <h2 style="color:#d35400;">🚚 Choix du Véhicule</h2>
+                <div class="form-group">
+                    <label>Sélectionnez votre utilitaire :</label>
+                    <select id="vehicleType" onchange="calculate()">
+                        <option value="1500" data-vol="13">Renault Master (3 Panneaux) - 1.5T / 13m³</option>
+                        <option value="2500" data-vol="20">🚚 Maxi City (Container 5m) - 2.5T / 20m³</option>
+                        <option value="1200" data-vol="10">Renault Master (L2H2) - 1.2T / 10m³</option>
+                        <option value="700" data-vol="3">Petit Utilitaire (Kangoo/Partner) - 700kg</option>
+                    </select>
+                </div>
+
+                <h2>📦 Panier Type (Par Client)</h2>
+                <div class="form-group">
+                    <label>🔹 Bidons 3 Litres</label>
+                    <input type="number" id="qty3L" value="12" oninput="calculate()">
+                    <small>Unités (ex: 12 = 3 cartons)</small>
+                </div>
+                <div class="form-group">
+                    <label>🔸 Bidons 5 Litres</label>
+                    <input type="number" id="qty5L" value="6" oninput="calculate()">
+                    <small>Unités (ex: 6 = 2 cartons)</small>
+                </div>
+                <div class="form-group">
+                    <label>🔻 Bidons 10 Litres</label>
+                    <input type="number" id="qty10L" value="2" oninput="calculate()">
+                    <small>Unités (Vrac)</small>
+                </div>
+            </div>
+
+            <!-- RÉSULTATS -->
+            <div class="card">
+                <h2>📊 Capacité de la Tournée</h2>
+
+                <div class="result-box">
+                    <span class="label">Poids Total par Client</span>
+                    <div id="weightPerClient" class="big-number">86 kg</div>
+                    <small><span id="volPerClient">0.2</span> m³ / Client</small>
+                </div>
+
+                <div class="result-box" style="background-color: #e8f5e9; border:1px solid #c8e6c9;">
+                    <span class="label">Nombre Maximum de Clients</span>
+                    <div id="maxClients" class="big-number">17</div>
+                    <div id="limitReason" style="color:#27ae60; font-weight:bold; font-size:1em;">Limité par le Poids
+                    </div>
+                </div>
+
+                <h3 style="margin-top:20px;">Jauge de Chargement</h3>
+
+                <div class="progress-container">
+                    <div style="display:flex; justify-content:space-between; font-size:0.9em; margin-bottom:3px;">
+                        <span>⚖️ Charge Utile (Poids)</span>
+                        <span id="labelWeight">0 / 0 kg</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div id="loadBar" class="progress-bar-fill bg-weight" style="width: 0%;">0%</div>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div style="display:flex; justify-content:space-between; font-size:0.9em; margin-bottom:3px;">
+                        <span>📦 Volume (m³)</span>
+                        <span id="labelVol">0 / 0 m³</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div id="volBar" class="progress-bar-fill bg-vol" style="width: 0%;">0%</div>
+                    </div>
+                </div>
+
+                <div class="consigne" id="adviceBox">
+                    ...
+                </div>
+
+                <h3>📦 Stock Total Embarqué</h3>
+                <table>
+                    <tr>
+                        <td>Bidons 3L</td>
+                        <td id="total3L"><strong>0</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Bidons 5L</td>
+                        <td id="total5L"><strong>0</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Bidons 10L</td>
+                        <td id="total10L"><strong>0</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Valeur Totale</strong></td>
+                        <td id="totalValue" style="color:#2980b9;"><strong>0 DA</strong></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DATA CONFIG
+        const WEIGHTS = { "3L": 3.2, "5L": 5.2, "10L": 10.5 };
+        // Volume m3 unitaire (estimé avec emballage)
+        const VOLUMES = { "3L": 0.0065, "5L": 0.011, "10L": 0.022 };
+        const PRICES = { "3L": 340, "5L": 470, "10L": 820 };
+
+        function calculate() {
+            // 1. GET INPUTS
+            let q3 = parseInt(document.getElementById('qty3L').value) || 0;
+            let q5 = parseInt(document.getElementById('qty5L').value) || 0;
+            let q10 = parseInt(document.getElementById('qty10L').value) || 0;
+
+            let vehicleSelect = document.getElementById('vehicleType');
+            let selOption = vehicleSelect.options[vehicleSelect.selectedIndex];
+            let maxLoad = parseInt(vehicleSelect.value); // kg
+            let maxVol = parseInt(selOption.getAttribute('data-vol')); // m3
+
+            // 2. CALCULATE PER CLIENT
+            let weightClient = (q3 * WEIGHTS["3L"]) + (q5 * WEIGHTS["5L"]) + (q10 * WEIGHTS["10L"]);
+            let volClient = (q3 * VOLUMES["3L"]) + (q5 * VOLUMES["5L"]) + (q10 * VOLUMES["10L"]);
+
+            document.getElementById('weightPerClient').innerText = weightClient.toFixed(1) + " kg";
+            document.getElementById('volPerClient').innerText = volClient.toFixed(3);
+
+            // 3. OPTIMIZATION
+            let maxByWeight = weightClient > 0 ? Math.floor(maxLoad / weightClient) : 999;
+            let maxByVol = volClient > 0 ? Math.floor(maxVol / volClient) : 999;
+
+            let maxClients = Math.min(maxByWeight, maxByVol);
+            if (weightClient === 0 && volClient === 0) maxClients = 0;
+
+            document.getElementById('maxClients').innerText = maxClients;
+
+            // 4. REASONING
+            let reason = document.getElementById('limitReason');
+            if (maxClients === 0) {
+                reason.innerText = "Panier vide";
+                reason.style.color = "grey";
+            } else if (maxByWeight < maxByVol) {
+                reason.innerText = "⚠️ Limité par le POIDS (" + maxByWeight + " clts vs " + maxByVol + ")";
+                reason.style.color = "#d35400"; // Orange
+            } else {
+                reason.innerText = "⚠️ Limité par le VOLUME (" + maxByVol + " clts vs " + maxByWeight + ")";
+                reason.style.color = "#2980b9"; // Blue
+            }
+
+            // 5. GAUGES
+            let totWeight = maxClients * weightClient;
+            let totVol = maxClients * volClient;
+
+            updateBar('loadBar', 'labelWeight', totWeight, maxLoad, 'kg', false);
+            updateBar('volBar', 'labelVol', totVol, maxVol, 'm³', true);
+
+            // 6. ADVICE
+            let advice = document.getElementById('adviceBox');
+            if (maxClients > 35) {
+                advice.innerHTML = "💡 <strong>Conseil :</strong> Capacité excellente ! Mais attention, faire " + maxClients + " clients/jour est humainement difficile (Max 30).";
+                advice.style.borderLeftColor = "#f1c40f";
+            } else if (maxClients < 12) {
+                advice.innerHTML = "🚨 <strong>Alerte :</strong> Tournée non rentable (<12 clients). Le véhicule sature trop vite. Réduisez le panier ou changez de véhicule.";
+                advice.style.borderLeftColor = "#c0392b";
+            } else {
+                advice.innerHTML = "✅ <strong>Optimisé :</strong> Une tournée de " + maxClients + " clients est idéale et rentable.";
+                advice.style.borderLeftColor = "#27ae60";
+            }
+
+            // 7. TOTALS
+            let t3 = maxClients * q3;
+            let t5 = maxClients * q5;
+            let t10 = maxClients * q10;
+            let val = (t3 * PRICES["3L"]) + (t5 * PRICES["5L"]) + (t10 * PRICES["10L"]);
+
+            document.getElementById('total3L').innerText = t3.toLocaleString();
+            document.getElementById('total5L').innerText = t5.toLocaleString();
+            document.getElementById('total10L').innerText = t10.toLocaleString();
+            document.getElementById('totalValue').innerText = "~ " + val.toLocaleString() + " DA";
+        }
+
+        function updateBar(barId, labelId, current, max, unit, isVol) {
+            let pct = max > 0 ? (current / max) * 100 : 0;
+            let bar = document.getElementById(barId);
+
+            bar.style.width = pct + "%";
+            bar.innerText = Math.round(pct) + "%";
+            document.getElementById(labelId).innerText = (isVol ? current.toFixed(1) : Math.round(current)) + " / " + max + " " + unit;
+
+            // Remove danger class first
+            bar.classList.remove('danger');
+            if (pct >= 98) bar.classList.add('danger');
+        }
+
+        // Init
+        calculate();
+    </script>
+    <!-- HOME BUTTON -->
+    <a href="../00_Portal/home_olga.html" class="home-btn" title="Retour Accueil">
+        <i class="fas fa-home"></i>
+    </a>
+</body>
+
+</html>

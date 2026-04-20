@@ -1,0 +1,25 @@
+# Fichiers et dossiers à ne PAS suivre par Git
+# (données de dev, archives, backups, etc.)
+
+# Archives locales
+_ARCHIVE/
+
+# Backups (trop lourds pour Git)
+OLGA_BACKUPS_DATABASE/
+
+# Fichiers Windows
+Thumbs.db
+desktop.ini
+
+# Fichiers macOS
+.DS_Store
+
+# Données de développement et payloads de seed
+01_Core/products_payload.json
+01_Core/users_payload.json
+
+# Modules Node si ajoutés plus tard
+node_modules/
+
+# Logs locaux
+*.log
