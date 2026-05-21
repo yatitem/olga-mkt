@@ -1,0 +1,212 @@
+.page-crm {
+  padding-bottom: 20px;
+}
+
+.crm-header-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.search-pill {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 100px;
+}
+
+.search-pill input {
+  width: 100%;
+  background: none;
+  border: none;
+  color: white;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+.add-client-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: var(--primary);
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+/* ── CLIENT CARDS ── */
+.client-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.client-card {
+  padding: 16px;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.client-card:active { transform: scale(0.98); }
+
+.c-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: var(--surface-high);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  color: var(--accent);
+  border: 1px solid var(--glass-border);
+}
+
+.c-main { flex: 1; }
+.c-main h4 { font-size: 1rem; font-weight: 700; margin-bottom: 2px; }
+.c-meta { display: flex; align-items: center; gap: 4px; font-size: 0.7rem; color: var(--text-muted); }
+
+/* ── ACTION SHEET ── */
+.action-sheet {
+  width: 100%;
+  background: #0a1324;
+  border-top: 1px solid var(--glass-border);
+  border-radius: 32px 32px 0 0;
+  padding: 24px;
+  padding-bottom: env(safe-area-inset-bottom, 24px);
+}
+
+.sheet-handle {
+  width: 40px;
+  height: 4px;
+  background: var(--surface-high);
+  border-radius: 10px;
+  margin: 0 auto 20px;
+}
+
+.client-intro {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.client-intro h3 { font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; }
+.client-intro p { color: var(--text-muted); font-size: 0.85rem; }
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 8px;
+  border-radius: 20px;
+  background: var(--surface-low);
+  border: 1px solid var(--glass-border);
+  color: var(--text-main);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: 0.2s;
+}
+
+.action-item .icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-high);
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.action-item.highlight .icon-box {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+.action-item:active { background: var(--surface-high); }
+
+/* ── MODAL UI ── */
+.full-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: #060e1d;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  height: 64px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.modal-body {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.field-group {
+  margin-bottom: 20px;
+  background: var(--surface-low);
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid var(--glass-border);
+}
+
+.field-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.kpi-choices {
+  display: flex;
+  gap: 8px;
+}
+
+.kpi-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--surface-high);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.kpi-btn.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}

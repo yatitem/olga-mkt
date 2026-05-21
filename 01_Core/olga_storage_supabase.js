@@ -26,7 +26,7 @@ const OLGA_STORAGE = (() => {
     const TABLE_SCHEMA = {
         'users':            ['id', 'nom', 'prenom', 'role', 'pin_hash', 'actif', 'tel', 'telephone', 'secteur', 'modules'],
         'clients':          ['id', 'nom', 'ville', 'wilaya', 'commune', 'telephone', 'tel', 'type', 'categorie', 'commercial_id', 'commercial_nom', 'status_validation', 'potentiel', 'mobile', 'acheteur', 'notes', 'promesse_ca', 'photo', 'date_creation', 'frequence_visite', 'credit_policy', 'credit_limit', 'rc', 'nif', 'quartier', 'adresse', 'last_visit_date', 'actif'],
-        'olga_products':    ['id', 'gamme', 'nom', 'parfum', 'pack', 'prix_usine', 'prix_supa', 'prix_supb', 'prix_public', 'stock_actuel', 'stock_minimum', 'kg_per_pack', 'vol_m3_per_pack', 'actif'],
+        'olga_products':    ['id', 'gamme', 'nom', 'parfum', 'pack', 'prix_usine', 'prix_supa', 'prix_supb', 'prix_public', 'stock_actuel', 'stock_minimum', 'kg_per_pack', 'vol_m3_per_pack', 'actif', 'stock_units_total', 'stock_colis', 'stock_units_detail', 'stock_min_units'],
         'orders':           ['id', 'bl', 'date', 'client_id', 'client_nom', 'commercial_id', 'commercial_nom', 'items', 'total', 'status', 'delivery_status', 'bc_id', 'commune', 'signature'],
         'objectifs':        ['id', 'user_id', 'ca', 'visits', 'mois'],
         'vehicles':         ['id', 'label', 'max_tonnage', 'max_volume', 'matricule'],

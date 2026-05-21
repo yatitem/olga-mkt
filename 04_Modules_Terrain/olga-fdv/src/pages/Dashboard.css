@@ -1,0 +1,140 @@
+.dashboard-container {
+  padding-bottom: 30px;
+}
+
+.dashboard-header {
+  margin-bottom: 24px;
+}
+
+.dashboard-header .date-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.dashboard-header h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   KPI GRID (6 WIDGETS 1:1)
+   ───────────────────────────────────────────────────────────────────── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.kpi-card {
+  padding: 16px;
+  border-radius: 20px;
+  border-left: 4px solid var(--primary);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kpi-card.purple { border-left-color: var(--accent-secondary); }
+.kpi-card.green { border-left-color: #10b981; }
+.kpi-card.red { border-left-color: #ef4444; }
+.kpi-card.orange { border-left-color: #f59e0b; }
+.kpi-card.blue { border-left-color: #3b82f6; }
+
+.kpi-card .lbl {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 700;
+  opacity: 0.8;
+}
+
+.kpi-card .num {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.kpi-card.green .num { color: #10b981; }
+.kpi-card.red .num { color: #ef4444; }
+
+/* ─────────────────────────────────────────────────────────────────────
+   GOAL BAR
+   ───────────────────────────────────────────────────────────────────── */
+.goal-section {
+  margin-bottom: 30px;
+  padding: 16px;
+  border-radius: 24px;
+}
+
+.goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.goal-header .label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.goal-header .percent {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--primary);
+}
+
+.progress-track {
+  height: 8px;
+  background: var(--surface-high);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent-secondary));
+  box-shadow: 0 0 12px var(--primary-glow);
+  transition: width 1s ease-out;
+}
+
+.goal-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.goal-footer .current { color: var(--text-main); }
+.goal-footer .target { color: var(--text-muted); }
+
+/* ─────────────────────────────────────────────────────────────────────
+   TOURNEE / PJP
+   ───────────────────────────────────────────────────────────────────── */
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.section-title h3 {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.section-title .badge {
+  font-size: 0.65rem;
+  background: var(--surface-high);
+  padding: 4px 10px;
+  border-radius: 100px;
+  color: var(--text-muted);
+}

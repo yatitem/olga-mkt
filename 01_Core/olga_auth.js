@@ -18,22 +18,35 @@ const OLGA_AUTH = (() => {
             .join('');
     }
 
-    // ── Connexion ─────────────────────────────────────────────
+    // ── Connexion (Supabase) ──────────────────────────────────
     async function login(pin) {
         try {
+            const SUPA_URL = 'https://hndsnoindoixrigcbivd.supabase.co';
+            const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhuZHNub2luZG9peHJpZ2NiaXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2Mjc4NDAsImV4cCI6MjA4ODIwMzg0MH0.TghbRf1CyNb2Ikei2W-D1nQ7qS8IO7ZpIeuEwt4Co0Q';
+            
             const pin_hash = await hashPin(pin);
-            const resp = await fetch(OLGA_CONFIG.API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ action: 'auth', pin_hash })
+            const url = `${SUPA_URL}/rest/v1/users?pin_hash=eq.${pin_hash}&select=*`;
+            const resp = await fetch(url, {
+                method: 'GET',
+                headers: { 
+                    'apikey': SUPA_KEY,
+                    'Authorization': `Bearer ${SUPA_KEY}`
+                }
             });
-            const result = await resp.json();
-            if (result.user) {
-                sessionStorage.setItem('olga_user', JSON.stringify(result.user));
-                sessionStorage.setItem('olga_ts', Date.now().toString());
-                return { success: true, user: result.user };
+            
+            const data = await resp.json();
+            
+            if (data && data.length > 0) {
+                const user = data[0];
+                if (user.actif) {
+                    sessionStorage.setItem('olga_user', JSON.stringify(user));
+                    sessionStorage.setItem('olga_ts', Date.now().toString());
+                    return { success: true, user: user };
+                } else {
+                    return { error: 'Compte inactif' };
+                }
             }
-            return { error: result.error || 'PIN incorrect' };
+            return { error: 'PIN incorrect' };
         } catch (e) {
             return { error: 'Serveur inaccessible. Vérifiez votre connexion.' };
         }

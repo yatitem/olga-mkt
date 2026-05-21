@@ -1008,6 +1008,7 @@
                     <button class="sub-tab-btn active" onclick="switchDashboardSubTab('home', this)">Accueil</button>
                     <button class="sub-tab-btn" onclick="switchDashboardSubTab('sales', this)">Détail Ventes</button>
                     <button class="sub-tab-btn" onclick="switchDashboardSubTab('finance', this)">Encaissements & Créances</button>
+                    <button class="sub-tab-btn" onclick="switchDashboardSubTab('margins', this)">Marges</button>
                 </div>
 
                 <div id="dash-home-view">
@@ -1151,6 +1152,41 @@
                                 <th>Solde (Dette)</th>
                                 <th>Dernier Paiement</th>
                                 <th class="center">Risque</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SUB VIEW: MARGINS -->
+            <div id="dash-margins-view" style="display:none;">
+                <div class="stats-grid">
+                    <div class="stat-card" style="border-bottom: 4px solid var(--green);">
+                        <div class="label">Marge Globale (Mois)</div>
+                        <div class="val" id="st-margin-total">0 DA</div>
+                        <div class="kpi-trend">Bénéfice net calculé</div>
+                    </div>
+                    <div class="stat-card" style="border-bottom: 4px solid var(--indigo);">
+                        <div class="label">Taux de Marge Moyen</div>
+                        <div class="val" id="st-margin-rate">0%</div>
+                        <div class="kpi-trend">Moyenne sur CA</div>
+                    </div>
+                </div>
+                <div class="actions-bar" style="margin-bottom:20px;">
+                    <input type="text" id="searchMarginsDash" class="search-input" placeholder="Chercher BL ou Client..." oninput="renderDashboardMargins()">
+                </div>
+                <div class="table-card">
+                    <table id="adminMarginsTable">
+                        <thead>
+                            <tr>
+                                <th>BL / Ref</th>
+                                <th>Date</th>
+                                <th>Client / Commercial</th>
+                                <th>CA (Vente)</th>
+                                <th>Coût (Usine)</th>
+                                <th>Marge Dégagée</th>
+                                <th class="center">% Marge</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -3793,11 +3829,16 @@
 
             if (!amount || amount <= 0) return alert('Montant invalide');
 
-            await OLGA_STORAGE.addPayment({
+            const result = await OLGA_STORAGE.addPayment({
                 client_id: clientId,
                 amount: amount,
                 mode: mode
             });
+
+            if (result && result.error) {
+                alert("Erreur de sécurité Supabase (RLS) : " + result.error + "\n\nVeuillez désactiver le RLS sur la table 'payments' dans votre tableau de bord Supabase.");
+                return;
+            }
 
             closeModal('modalPayment');
             if (OLGA_CONFIG.MODE === 'api') {
@@ -3870,6 +3911,7 @@
             document.getElementById('dash-home-view').style.display = (sub === 'home' ? 'block' : 'none');
             document.getElementById('dash-sales-view').style.display = (sub === 'sales' ? 'block' : 'none');
             document.getElementById('dash-finance-view').style.display = (sub === 'finance' ? 'block' : 'none');
+            document.getElementById('dash-margins-view').style.display = (sub === 'margins' ? 'block' : 'none');
 
             refreshUI();
         }
@@ -3947,6 +3989,7 @@
             // Rendu des sous-vues si actives
             if (document.getElementById('dash-sales-view').style.display !== 'none') renderDashboardSales();
             if (document.getElementById('dash-finance-view').style.display !== 'none') renderDashboardFinance();
+            if (document.getElementById('dash-margins-view').style.display !== 'none') renderDashboardMargins();
         }
 
         let _salesChartInstance = null;
@@ -4158,6 +4201,64 @@
                     </tr>
                 `;
             }).join('') || '<tr><td colspan="6" class="center">Aucun client trouvé.</td></tr>';
+        }
+
+        function renderDashboardMargins() {
+            const q = (document.getElementById('searchMarginsDash')?.value || '').toLowerCase();
+            const targetMonth = document.getElementById('dashboardMonth').value;
+
+            // On ne prend que les BL validés ou livrés du mois cible
+            const monthlyOrders = _orders.filter(o => 
+                _isDateInMonth(o.date, targetMonth) && 
+                (o.status === 'valide' || o.status === 'livre') &&
+                ((o.bl || '').toLowerCase().includes(q) || (o.client_nom || o.client || '').toLowerCase().includes(q))
+            );
+
+            let totalRevenue = 0;
+            let totalCost = 0;
+
+            const rowsHtml = monthlyOrders.map(o => {
+                let orderCost = 0;
+                (o.items || []).forEach(item => {
+                    const p = _products.find(x => String(x.id) === String(item.produit_id));
+                    if (p) {
+                        const costPrice = parseFloat(p.prix_usine) || 0;
+                        const mult = OLGA_STORAGE.getPackMultiplier(item.pack); // Utilise le pack de l'item
+                        orderCost += (item.qty * costPrice * mult);
+                    }
+                });
+
+                const revenue = parseFloat(o.total) || 0;
+                const margin = revenue - orderCost;
+                const marginPct = revenue > 0 ? (margin / revenue) * 100 : 0;
+
+                totalRevenue += revenue;
+                totalCost += orderCost;
+
+                return `
+                    <tr>
+                        <td><strong>${o.bl || 'N/A'}</strong><br><small>#${o.id}</small></td>
+                        <td>${fmtDate(o.date)}</td>
+                        <td>${o.client_nom || 'Client inconnu'}<br><small>${o.commercial_nom || 'Direct'}</small></td>
+                        <td style="font-weight:600;">${revenue.toLocaleString()} DA</td>
+                        <td style="color:var(--text-muted);">${orderCost.toLocaleString()} DA</td>
+                        <td style="font-weight:800; color:${margin >= 0 ? 'var(--green)' : 'var(--red)'}">${margin.toLocaleString()} DA</td>
+                        <td class="center">
+                            <span class="badge ${marginPct >= 20 ? 'b-green' : marginPct >= 10 ? 'b-orange' : 'b-red'}">
+                                ${marginPct.toFixed(1)}%
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            const globalMargin = totalRevenue - totalCost;
+            const globalMarginRate = totalRevenue > 0 ? (globalMargin / totalRevenue) * 100 : 0;
+
+            document.getElementById('st-margin-total').innerText = globalMargin.toLocaleString() + ' DA';
+            document.getElementById('st-margin-rate').innerText = globalMarginRate.toFixed(1) + '%';
+
+            document.querySelector('#adminMarginsTable tbody').innerHTML = rowsHtml || '<tr><td colspan="6" class="center">Aucune opération trouvée pour ce mois.</td></tr>';
         }
 
         function _fd(d) {
